@@ -30,6 +30,8 @@ int deserialize(json_data* jsonData, char* str);
 
 bool verify(string json_str);
 bool is_number(char c);
-int try_parse_number(char *str);
 
+int try_parse_other(char *str);
+int try_parse_number(char *str);
+int try_parse_str(char* str);
 #endif //SRC_JSON_H

@@ -198,6 +198,35 @@ bool is_number(char c) {
 }
 
 
+/**
+ * Try to parse a boolean or null
+ * @param str the string to evaluate
+ * @returns false if the string correspond to none of the following
+ * @returns 1 if the string correspond to null
+ * @returns 2 if the string correspond to true
+ * @returns 3 if the string correspond to false
+ */
+
+int try_parse_other(char *str) {
+    size_t str_len = strlen(str);
+    char *true_str = "true";
+    char *false_str = "false";
+    char *null_str = "null";
+
+    if (strlen(null_str) <= str_len && strcmp(str, null_str) == 0) return 1;
+    if (strlen(true_str) <= str_len && strcmp(str, true_str) == 0) return 2;
+    if (strlen(false_str) <= str_len && strcmp(str, false_str) == 0) return 3;
+
+    return false;
+
+}
+
+/**
+ *
+ * @param str the string to evaluate
+ * @returns false if str is not a number or
+ * @returns length (in char) of the number
+ */
 int try_parse_number(char *str) {
     size_t str_len = strlen(str);
     char current, previous = '\0';
@@ -215,8 +244,7 @@ int try_parse_number(char *str) {
 
             if (!is_number(current) && current != '-' && current != '+') {
                 break;
-            }
-            else {
+            } else {
                 previous = current;
                 continue;
             }
@@ -247,7 +275,7 @@ int try_parse_number(char *str) {
         }
 
         if (current == 'e' || current == 'E') {
-            if(previous == '.') {
+            if (previous == '.') {
                 break;
             }
             if (already_got_e) {
@@ -276,6 +304,25 @@ int try_parse_number(char *str) {
 
     return false;
 
+}
+
+/**
+ *
+ * @param str the string to evaluate and must be start after the '"'
+ * @returns false if str is not a number or
+ * @returns length (in char) of the number
+ */
+int try_parse_str(char *str) {
+    size_t str_len = strlen(str);
+    stack stack = empty_stack();
+    stack_push(&stack, '"');
+    char current, previous = '\0';
+    for (int i = 1; i < str_len; ++i) {
+        current = str[i];
+    }
+
+
+    return false;
 }
 
 json_node deserialize_generic(char *str) {

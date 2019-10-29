@@ -1,6 +1,9 @@
-idea
+.idea
 .vs
 .vscode
+CMakeLists.txt
+cmake-build-debug
+
 build
 dist
 

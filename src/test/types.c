@@ -40,3 +40,9 @@ char stack_seek(stack *stack) {
     return -1;
 }
 
+stack empty_stack() {
+    stack stack;
+    stack.length = 0;
+    return stack;
+}
+

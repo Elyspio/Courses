@@ -17,6 +17,7 @@ typedef struct stack {
 bool stack_push(stack* stack , char elem);
 char stack_pop(stack* stack);
 char stack_seek(stack* stack);
+stack empty_stack();
 
 
 
