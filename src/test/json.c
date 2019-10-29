@@ -308,17 +308,46 @@ int try_parse_number(char *str) {
 
 /**
  *
- * @param str the string to evaluate and must be start after the '"'
+ * @param str the string to evaluate and must start at the '"'
  * @returns false if str is not a number or
  * @returns length (in char) of the number
  */
 int try_parse_str(char *str) {
     size_t str_len = strlen(str);
     stack stack = empty_stack();
-    stack_push(&stack, '"');
     char current, previous = '\0';
-    for (int i = 1; i < str_len; ++i) {
+    char allowedAfterBackSlash[8] = {'"', '\'', '/', 'b', 'f', 'n', 'r', 't'};
+
+    for (int i = 0; i < str_len; ++i) {
         current = str[i];
+        if (current >= ' ' && current <= '~') {
+
+            if (previous == '\\') {
+                bool correct = false;
+                for (int j = 0; j < 8; ++j) {
+                    if (allowedAfterBackSlash[j] == current) {
+                        correct = true;
+                    }
+                }
+                if (correct == false) { break; }
+            } else {
+                if (current == '"') {
+                    // debut du string
+                    if (stack.length == 0) {
+                        stack_push(&stack, current);
+                    }
+                    // fin du string
+                    else if (stack_seek(&stack) == '"') {
+                        stack_pop(&stack);
+                        return i + 1;
+                    }
+                }
+            }
+        } else {
+            return i;
+        }
+        previous = current;
+
     }
 
 
