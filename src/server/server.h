@@ -15,9 +15,9 @@ int _handle_color(int socket_fd, json_data* json);
 
 int _handle_name(int socket_fd, json_data* json);
 
-int _handle_error(int socket_fd, char *message);
+int _handle_error(int socket_fd, char* message);
 
-int _response(int client_socket_fd, char *message);
+int _response(int client_socket_fd, char* message);
 
 int listen_client();
 

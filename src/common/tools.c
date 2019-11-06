@@ -7,7 +7,7 @@
 #include "string.h"
 #include "stdio.h"
 
-void replace_all(char *src, char target, char by) {
+void replace_all(char* src, char target, char by) {
 	for (int i = 0; src[i] != '\0'; i++) {
 		if (src[i] == target) {
 			src[i] = by;
@@ -15,7 +15,7 @@ void replace_all(char *src, char target, char by) {
 	}
 }
 
-void slice(char *src, int from, int to) {
+void slice(char* src, int from, int to) {
 	int src_length = strlen(src);
 	if (to + 1 < src_length) {
 		src[to + 1] = '\0';
@@ -28,7 +28,7 @@ void slice(char *src, int from, int to) {
 	src[nb_char_moved] = '\0';
 }
 
-void remove_all(char *src, const char *chars) {
+void remove_all(char* src, const char* chars) {
 
 	for (int i = 0; src[i] != '\0'; ++i) {
 		for (int j = 0; j < chars[j] != '\0'; ++j) {
@@ -45,9 +45,9 @@ void remove_all(char *src, const char *chars) {
 }
 
 
-void format_time(char *dest) {
+void format_time(char* dest) {
 	time_t raw_time;
-	struct tm *times;
+	struct tm* times;
 
 	time(&raw_time);
 	times = localtime(&raw_time);
@@ -55,14 +55,11 @@ void format_time(char *dest) {
 	sprintf(dest, "%02d:%02d:%02d", times->tm_hour, times->tm_min, times->tm_sec);
 }
 
-void escape_str(char *dest, char *src)
-{
+void escape_str(char* dest, char* src) {
 	*dest = 0;
 	char* start = src;
-	while(*src)
-	{
-		switch(*src)
-		{
+	while (*src) {
+		switch (*src) {
 			case '\"':
 				strcat(dest++, "\\\"");
 				break;
@@ -79,15 +76,11 @@ void escape_str(char *dest, char *src)
 }
 
 
-int unescape_str(char *dest, char* src)
-{
+int unescape_str(char* dest, char* src) {
 	int size = 0;
-	while (*src != '\"')
-	{
-		if (*src == '\\' && *(src+1))
-		{
-			if (*(src+1) == '\"' || *(src+1) == '\\')
-			{
+	while (*src != '\"') {
+		if (*src == '\\' && *(src + 1)) {
+			if (*(src + 1) == '\"' || *(src + 1) == '\\') {
 				src++;
 				size++;
 			}

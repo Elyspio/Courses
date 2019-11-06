@@ -7,7 +7,7 @@
 #include "json.h"
 #include "const.h"
 
-code getCode(char *str) {
+code getCode(char* str) {
 
 	code code = NOT_IDENTIFIED;
 	if (strncmp(str, PROMPT_MESSAGE, strlen(PROMPT_MESSAGE)) == 0) {

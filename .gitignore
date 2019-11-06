@@ -1,8 +1,9 @@
 .idea
-.vs
 .vscode
-CMakeLists.txt
-cmake-build-debug
 build
 dist
-
+cmake-build-debug
+temp 
+CMakeLists.txt
+*.zip
+*.o

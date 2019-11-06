@@ -10,21 +10,18 @@
 #include "tools.h"
 
 
-void remove_whitespace(char* str)
-{
-	const char* d = str, *start = str;
+void remove_whitespace(char* str) {
+	const char* d = str, * start = str;
 	bool in_string = false;
-	do
-	{
-		if (*d == '\"' && !(d != start && *(d-1) == '\\'))
+	do {
+		if (*d == '\"' && !(d != start && *(d - 1) == '\\'))
 			in_string = !in_string;
 		if (in_string)
 			continue;
 
-		while (*d == ' ' || *d == '\n' || *d == '\t')
-		{
+		while (*d == ' ' || *d == '\n' || *d == '\t') {
 			d++;
-			if (*d =='\"')	// avoid skipping a \" after a whitespace
+			if (*d == '\"')    // avoid skipping a \" after a whitespace
 				in_string = !in_string;
 		}
 
@@ -32,15 +29,12 @@ void remove_whitespace(char* str)
 }
 
 
-
 /**
  * @brief Serializes a json_data to a string in json format
  */
-char *serialize(json_data *json)
-{
-	char *str = calloc(DATA_LENGTH , sizeof(char));
-	if (str == 0)
-	{
+char* serialize(json_data* json) {
+	char* str = calloc(DATA_LENGTH, sizeof(char));
+	if (str == 0) {
 		perror("Could not allocate memory");
 		exit(1);
 	}
@@ -49,8 +43,7 @@ char *serialize(json_data *json)
 	strcat(str, json->code);
 	strcat(str, "\", \"data\": [");
 
-	for (int i = 0; i < json->data_length; i++)
-	{
+	for (int i = 0; i < json->data_length; i++) {
 		strcat(str, "\"");
 
 		char* escaped_str = calloc(DATA_LENGTH, sizeof(char));
@@ -74,19 +67,17 @@ char *serialize(json_data *json)
  * @param str
  * @return -1 if json is malformed, 0 if process is successful
  */
-int deserialize(json_data* jsonData, char* str)
-{
+int deserialize(json_data* jsonData, char* str) {
 	remove_whitespace(str);
 
 	char* code_key = "{\"code\":\"";
 	int code_key_length = strlen(code_key);
 
-	if(strlen(str) < code_key_length) {
-	    return -1;
+	if (strlen(str) < code_key_length) {
+		return -1;
 	}
 
-	if (strncmp(str, code_key, code_key_length) == 0)
-	{
+	if (strncmp(str, code_key, code_key_length) == 0) {
 		str += code_key_length;
 		char* code = malloc(DATA_LENGTH * sizeof(char));
 		int escaped_size = unescape_str(code, str);
@@ -97,24 +88,20 @@ int deserialize(json_data* jsonData, char* str)
 		char* data_key = "\",\"data\":[";
 		int data_key_length = strlen(data_key);
 
-		if (strncmp(str, data_key, data_key_length) == 0)
-		{
+		if (strncmp(str, data_key, data_key_length) == 0) {
 			str += data_key_length;
 
 			jsonData->data = malloc(64 * sizeof(char*));
 			int data_length = 0;
-			while (*str)
-			{
+			while (*str) {
 				//printf("AAA:%d, %c ; ", data_length, *str);
 				if (*str == ']')
 					break;
-				if (*str == ',')
-				{
+				if (*str == ',') {
 					str++;
 					continue;
 				}
-				if (*str == '\"')
-				{
+				if (*str == '\"') {
 					char* data = malloc(DATA_LENGTH * sizeof(char));
 					str += 1;
 					escaped_size = unescape_str(data, str);
@@ -125,16 +112,13 @@ int deserialize(json_data* jsonData, char* str)
 			}
 			jsonData->data_length = data_length;
 		}
-	}
-	else
-	{
+	} else {
 		return -1;
 	}
 	return 0;
 }
 
-json_node deserialize_generic(char* str)
-{
+json_node deserialize_generic(char* str) {
 	json_node data;
 
 	remove_whitespace(str);
@@ -145,14 +129,11 @@ json_node deserialize_generic(char* str)
 	char** keys = malloc(10 * sizeof(char*));
 	int current_depth = 0;
 
-	do
-	{
-		if (*str == '\"')
-		{
+	do {
+		if (*str == '\"') {
 			if (in_string) // finished getting current string
 			{
-				if (is_key)
-				{
+				if (is_key) {
 					keys[current_depth] = malloc(DATA_LENGTH * sizeof(char));
 					strcpy(keys[current_depth], current_string);
 					current_depth++;
@@ -164,8 +145,7 @@ json_node deserialize_generic(char* str)
 			in_string = !in_string;
 		}
 
-		if (in_string)
-		{
+		if (in_string) {
 			unsigned long str_len = strlen(current_string);
 			current_string[str_len] = *str;
 			current_string[str_len] = '\0';
@@ -173,8 +153,7 @@ json_node deserialize_generic(char* str)
 			continue;
 		}
 
-		if (*str == ':')
-		{
+		if (*str == ':') {
 			is_key = false;
 		}
 	} while (*str++);

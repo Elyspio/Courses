@@ -23,8 +23,8 @@
  * @return 0 if everything has worked correctly
  * @return -1 if could not write data into the socket
  */
-int _response(int client_socket_fd, char *message) {
-	int data_size = write(client_socket_fd, (void *) message, strlen(message));
+int _response(int client_socket_fd, char* message) {
+	int data_size = write(client_socket_fd, (void*) message, strlen(message));
 
 	if (data_size < 0) {
 		perror("erreur ecriture");
@@ -87,7 +87,7 @@ int listen_client() {
 	server_addr.sin_port = htons(PORT);
 	server_addr.sin_addr.s_addr = INADDR_ANY;
 
-	bind_status = bind(socketfd, (struct sockaddr *) &server_addr, sizeof(server_addr));
+	bind_status = bind(socketfd, (struct sockaddr*) &server_addr, sizeof(server_addr));
 	if (bind_status < 0) {
 		perror("Error: bind");
 		return -2;
@@ -98,7 +98,7 @@ int listen_client() {
 	int client_addr_len = sizeof(client_addr);
 
 	// nouvelle connection de client
-	int client_socket_fd = accept(socketfd, (struct sockaddr *) &client_addr, &client_addr_len);
+	int client_socket_fd = accept(socketfd, (struct sockaddr*) &client_addr, &client_addr_len);
 	if (client_socket_fd < 0) {
 		perror("Error: Accept");
 		return -3;
@@ -114,21 +114,21 @@ int listen_client() {
 
 int handle_request(int socket_fd) {
 
-	char *data = calloc(DATA_LENGTH, sizeof(char));
+	char* data = calloc(DATA_LENGTH, sizeof(char));
 
 	do {
-        int data_size = read(socket_fd, (void *) data, DATA_LENGTH);
+		int data_size = read(socket_fd, (void*) data, DATA_LENGTH);
 
-        if(data == NULL || strncmp("", data, 1)==0) {
-            exit(0);
-        }
+		if (data == NULL || strncmp("", data, 1) == 0) {
+			exit(0);
+		}
 
-        if (data_size <= 0) {
-            perror("erreur lecture");
-            return (EXIT_FAILURE);
-        }
+		if (data_size <= 0) {
+			perror("erreur lecture");
+			return (EXIT_FAILURE);
+		}
 
-    }while (strcmp("", data) == 0);
+	} while (strcmp("", data) == 0);
 
 
 	int error_code = 0;
@@ -164,27 +164,27 @@ int handle_request(int socket_fd) {
 	return 0;
 }
 
-int _handle_error(int socket_fd, char *message) {
-	char *data = calloc(DATA_LENGTH, sizeof(char));
+int _handle_error(int socket_fd, char* message) {
+	char* data = calloc(DATA_LENGTH, sizeof(char));
 	strncpy(data, PROMPT_ERROR, sizeof(PROMPT_ERROR));
 	strncat(data, message, DATA_LENGTH - strlen(message));
 	return _response(socket_fd, data);
 }
 
-int _handle_message(int socket_fd, json_data *json) {
+int _handle_message(int socket_fd, json_data* json) {
 
 	if (json->data_length == 1) {
 		printf("Message recieved from client: %s\n", json->data[0]);
 		int prompt_length = strlen(PROMPT_MESSAGE);
 
 		printf("Please enter the response: ");
-		char *response_message = calloc(DATA_LENGTH - prompt_length, sizeof(char));
+		char* response_message = calloc(DATA_LENGTH - prompt_length, sizeof(char));
 		fgets(response_message, DATA_LENGTH - prompt_length, stdin);
 		response_message[strlen(response_message) - 1] = '\0';
 
 		strncpy(json->data[0], response_message, strlen(response_message));
 
-		char *data = serialize(json);
+		char* data = serialize(json);
 
 		return _response(socket_fd, data);
 	}
@@ -194,12 +194,12 @@ int _handle_message(int socket_fd, json_data *json) {
 
 }
 
-int _handle_calcul(int socket_fd, json_data *json) {
+int _handle_calcul(int socket_fd, json_data* json) {
 	if (json->data_length == 3) {
 		double a = strtod(json->data[1], NULL);
 		double b = strtod(json->data[2], NULL);
 		char operator = json->data[0][0];
-		char *error_str;
+		char* error_str;
 		double result = a;
 		switch (operator) {
 			case '+':
@@ -223,7 +223,7 @@ int _handle_calcul(int socket_fd, json_data *json) {
 		json->data_length = 1;
 		sprintf(json->data[0], "%lf", result);
 
-		char *data = calloc(DATA_LENGTH, sizeof(char));
+		char* data = calloc(DATA_LENGTH, sizeof(char));
 		strcpy(data, serialize(json));
 		return _response(socket_fd, data);
 	}
@@ -231,18 +231,18 @@ int _handle_calcul(int socket_fd, json_data *json) {
 }
 
 
-void plot(struct json_data *json) {
+void plot(struct json_data* json) {
 
 	//Extraire le compteur et les couleurs RGB
-	FILE *p = popen("gnuplot -persist", "w");
+	FILE* p = popen("gnuplot -persist", "w");
 	printf("Plot");
 	fprintf(p, "set xrange [-15:15]\n");
 	fprintf(p, "set yrange [-15:15]\n");
 	fprintf(p, "set style fill transparent solid 0.9 noborder\n");
 	fprintf(p, "set title 'Top %d colors'\n", json->data_length);
 	fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
-	for (int i = 0; i <  json->data_length; i++) {
-		int divide = 360 /  json->data_length;
+	for (int i = 0; i < json->data_length; i++) {
+		int divide = 360 / json->data_length;
 		fprintf(p, "0 0 %d %d %d 0x%s\n", divide, (i - 1) * divide, i * divide, json->data[i] + 1);
 	}
 	fprintf(p, "e\n");
@@ -251,7 +251,7 @@ void plot(struct json_data *json) {
 }
 
 
-int _handle_color(int socket_fd, json_data *json) {
+int _handle_color(int socket_fd, json_data* json) {
 
 	if (json->data_length >= 1) {
 		plot(json);
@@ -263,7 +263,7 @@ int _handle_color(int socket_fd, json_data *json) {
 	return _handle_error(socket_fd, "to handle colors, we need at least one argument: nbColors [#color1 #color2]");
 }
 
-int _handle_name(int socket_fd, json_data *json) {
+int _handle_name(int socket_fd, json_data* json) {
 	if (json->data_length == 1) {
 		printf("Client's name: %s\n", json->data[0]);
 		return _response(socket_fd, serialize(json));

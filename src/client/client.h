@@ -15,7 +15,7 @@ int send_receive_color(int socketfd);
 
 int send_receive_name(int socketfd);
 
-void analyse(char *pathname, char **colors, int nb_colors);
+void analyse(char* pathname, char** colors, int nb_colors);
 
 void disp_menu(int socked_id);
 
