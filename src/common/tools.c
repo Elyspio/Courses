@@ -19,7 +19,7 @@ void replace_all(char* src, char target, char by) {
 
 char* slice(char* src, int from, int to) {
 	char* str = malloc(strlen(src));
-	strncpy(str , src + from, to- from );
+	strncpy(str, src + from, to - from);
 	return str;
 }
 
@@ -88,15 +88,15 @@ int unescape_str(char* dest, char* src) {
 }
 
 bool is_double(string str) {
-	string alias =str;
+	string alias = str;
 	bool got_point = false;
 	bool got_number_after_point = false;
-	for(; *alias != '\0';  alias++) {
-		if (*alias  == '.') {
+	for (; *alias != '\0'; alias++) {
+		if (*alias == '.') {
 			got_point = true;
 		}
-		if(got_point) {
-			if(*alias > '0' && *alias <= '9') {
+		if (got_point) {
+			if (*alias > '0' && *alias <= '9') {
 				got_number_after_point = true;
 			}
 		}

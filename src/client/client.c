@@ -102,8 +102,6 @@ int connect_client() {
  */
 int send_receive_message(int socketfd) {
 
-	const int prompt_length = strlen(CODE_MESSAGE);
-
 	char* data = calloc(DATA_LENGTH, sizeof(char));
 
 	char message[MESSAGE_MAX_LENGH];
@@ -139,7 +137,7 @@ int send_receive_message(int socketfd) {
 
 	if (getCode(new_json.code) == MESSAGE) {
 		if (new_json.data_length == 1 && strcmp(new_json.values[0].type, TYPE_STR) == 0) {
-			printf("Recieved message from server: %s\n", new_json.values[0].data);
+			printf("Recieved message from server: %s\n", (string) new_json.values[0].data);
 		} else {
 			perror("Error nb arguments in message response");
 		}
@@ -159,6 +157,7 @@ int send_receive_message(int socketfd) {
  * @return 0 if everything has worked corectly
  * @return -1 if could not write in socket
  * @return -2 if could not read from socket
+ * @return -3 if the response code is not CODE_CALCUL
  */
 int send_receive_calcul(int socketfd) {
 
@@ -234,6 +233,8 @@ int send_receive_calcul(int socketfd) {
 		return 0;
 	}
 
+	return -3;
+
 }
 
 void analyse(char* pathname, char** colors, int nb_colors) {
@@ -282,6 +283,7 @@ int send_receive_color(int socketfd) {
 	char** colors = malloc(sizeof(char*) * nb_colors_to_send);
 	analyse(path, colors, nb_colors_to_send);
 
+
 	json_data json = json_create(nb_colors_to_send);
 	strcpy(json.code, CODE_COLOR);
 	for (int i = 0; i < nb_colors_to_send; ++i) {
@@ -293,7 +295,7 @@ int send_receive_color(int socketfd) {
 	}
 
 	char* serialized_json = serialize(&json);
-	if(serialized_json == NULL) {
+	if (serialized_json == NULL) {
 		fprintf(stderr, "error in client.color json");
 		return -3;
 	}
@@ -315,19 +317,17 @@ int send_receive_color(int socketfd) {
 	code code1 = getCode(json.code);
 	if (code1 == COLOR) {
 		if (json.data_length == 1) {
-			printf("Response from server (color): %s\n", json.values[0].data);
+			printf("Response from server (color): %s\n", (string) json.values[0].data);
 		} else {
 			fprintf(stderr, "Error nb arguments in color response");
 		}
-	} 
-	else if(code1 == ERROR) {
+	} else if (code1 == ERROR) {
 		if (json.data_length == 1) {
-			printf("Error from server: %s\n", json.values[0].data);
+			printf("Error from server: %s\n", (string) json.values[0].data);
 		} else {
 			fprintf(stderr, "Error nb arguments in color error: 1 needed");
 		}
-	}
-	else {
+	} else {
 		fprintf(stderr, "Wrong code in color response: %s", json.code);
 	}
 
@@ -372,12 +372,12 @@ int send_receive_name(int socketfd) {
 	deserialize(&json, data);
 	if (getCode(json.code) == NAME) {
 		if (json.data_length == 1) {
-			printf("Recieved name from server: %s\n", json.values[0].data);
+			printf("Recieved name from server: %s\n", (string)  json.values[0].data);
 		} else {
 			fprintf(stderr, "Error nb arguments in name response");
 		}
 	} else {
-		fprintf(stderr, "Wrong code in name response:  %s %s", json.code, json.values[0].data);
+		fprintf(stderr, "Wrong code in name response:  %s %s", json.code, (string)  json.values[0].data);
 	}
 
 	free(data);

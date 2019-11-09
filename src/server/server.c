@@ -99,7 +99,7 @@ int listen_client() {
 	int client_addr_len = sizeof(client_addr);
 
 	// nouvelle connection de client
-	int client_socket_fd = accept(socketfd, (struct sockaddr*) &client_addr, &client_addr_len);
+	int client_socket_fd = accept(socketfd, (struct sockaddr*) &client_addr, (socklen_t*) &client_addr_len);
 	if (client_socket_fd < 0) {
 		perror("Error: Accept");
 		return -3;
@@ -183,7 +183,7 @@ int _handle_error(int socket_fd, char* message) {
 int _handle_message(int socket_fd, json_data* json) {
 
 	if (json->data_length == 1) {
-		printf("Message recieved from client: %s\n", json->values[0].data);
+		printf("Message recieved from client: %s\n", (string) json->values[0].data);
 		int prompt_length = strlen(CODE_MESSAGE);
 
 		printf("Please enter the response: ");
@@ -218,7 +218,8 @@ int _handle_calcul(int socket_fd, json_data* json) {
 			        json->values[1].type, TYPE_INT, TYPE_DOUBLE);
 		}
 		if (strcmp(json->values[2].type, TYPE_INT) != 0 && strcmp(json->values[2].type, TYPE_DOUBLE) != 0) {
-			fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s.", json->values[2].type, TYPE_INT,
+			fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s.", (string) json->values[2].type,
+			        TYPE_INT,
 			        TYPE_DOUBLE);
 		}
 
@@ -300,14 +301,16 @@ void plot(int socket_fd, struct json_data* json) {
 	FILE* p = popen("gnuplot -persist 2>/tmp/test", "w");
 	int fd = open("/tmp/test", O_RDONLY);
 
-	char str[100];
-	if(read(fd, str, 100) > 0) {
+	string str = calloc(100, sizeof(char));
+	if (read(fd, str, 100) > 0) {
 		// + 18 for "Error on ..." chars
-		char error[100 + 18];
+		string error = calloc(100 + 18, sizeof(char));
 		sprintf(error, "Error on gnuplot: %s", str);
-		_handle_error(socket_fd, error);
-	}
-	else {
+		// ignore the warning "Gtk-Message"
+		if (strncmp(str, "Gtk-Message", 11) != 0) {
+			_handle_error(socket_fd, error);
+		}
+	} else {
 		printf("Plot");
 		fprintf(p, "set xrange [-15:15]\n");
 		fprintf(p, "set yrange [-15:15]\n");
@@ -316,7 +319,7 @@ void plot(int socket_fd, struct json_data* json) {
 		fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
 		for (int i = 0; i < json->data_length; i++) {
 			int divide = 360 / json->data_length;
-			fprintf(p, "0 0 %d %d %d 0x%s\n", divide, (i - 1) * divide, i * divide, json->values[i].data + 1);
+			fprintf(p, "0 0 %d %d %d 0x%s\n", divide, (i - 1) * divide, i * divide, (string) json->values[i].data + 1);
 		}
 		fprintf(p, "e\n");
 		printf("Plot: FIN\n");
@@ -336,19 +339,19 @@ int _handle_color(int socket_fd, json_data* json) {
 		struct json_data response_json = json_create(1);
 		strcpy(response_json.code, CODE_COLOR);
 		response_json.values[0] = value_create();
-		string message = "colors are printed on the server";
+		string message = "saved";
 		strcpy(response_json.values[0].type, TYPE_STR);
 		response_json.values[0].data = malloc(strlen(message) * sizeof(char));
 		strcpy(response_json.values[0].data, message);
 		return _response(socket_fd, serialize(&response_json));
 
 	}
-	return _handle_error(socket_fd, "to handle colors, we need at least one argument: nbColors [#color1 #color2]");
+	return _handle_error(socket_fd, "to handle colors, we need at least two arguments: nbColors [#color1 #color2]");
 }
 
 int _handle_name(int socket_fd, json_data* json) {
 	if (json->data_length == 1 && strcmp(json->values[0].type, TYPE_STR) == 0) {
-		printf("Client's name: %s\n", json->values[0].data);
+		printf("Client's name: %s\n", (string) json->values[0].data);
 		return _response(socket_fd, serialize(json));
 	}
 	return _handle_error(socket_fd, "to handle name, we need one argument: name");

@@ -32,7 +32,6 @@ void remove_whitespace(char* str) {
 }
 
 
-
 string serialize(json_data* json) {
 	string str = calloc(DATA_LENGTH, sizeof(char));
 	char* code = malloc(30 * sizeof(char));
@@ -41,19 +40,22 @@ string serialize(json_data* json) {
 	strcat(code, "\",\"values\":[");
 	strcpy(str, code);
 
+	string current_str = malloc(DATA_LENGTH * sizeof(char));
 	for (int i = 0; i < json->data_length; ++i) {
 		value current = json->values[i];
+		memset(current_str, 0, DATA_LENGTH);
 		if (strcmp(current.type, TYPE_BOOL) == 0) {
-			strcat(str, (char*) current.data);
+			strcat(current_str, (string) current.data);
 		} else if (strcmp(current.type, TYPE_INT) == 0) {
-			sprintf(str, "%s%d", str, *(int*) current.data);
+			sprintf(current_str, "%d", *(int*) current.data);
 		} else if (strcmp(current.type, TYPE_DOUBLE) == 0) {
-			sprintf(str, "%s%lf", str, *(double*) current.data);
+			sprintf(current_str, "%lf", *(double*) current.data);
 		} else if (strcmp(current.type, TYPE_FLOAT) == 0) {
-			sprintf(str, "%s%f", str, *(float*) current.data);
+			sprintf(current_str, "%f", *(float*) current.data);
 		} else if (strcmp(current.type, TYPE_STR) == 0) {
-			sprintf(str, "%s\"%s\"", str, (char*) current.data);
+			sprintf(current_str, "\"%s\"", (string) current.data);
 		}
+		strcat(str, current_str);
 
 		if (i < json->data_length - 1) {
 			strcat(str, ",");
@@ -62,7 +64,7 @@ string serialize(json_data* json) {
 
 	strcat(str, "]}");
 
-	if(try_parse_everything(str) != strlen(str)) {
+	if (try_parse_everything(str) != strlen(str)) {
 		fprintf(stderr, "Error: json created is not correct : %s", str);
 
 		return NULL;
@@ -79,9 +81,10 @@ json_data json_create(int nb_values) {
 	data.values = malloc(nb_values * sizeof(value));
 	return data;
 }
+
 void json_create_ptr(json_data* data, int nb_values) {
 	data->data_length = nb_values;
-	data->code  = calloc(MAX_CODE_LENGTH, sizeof(char));
+	data->code = calloc(MAX_CODE_LENGTH, sizeof(char));
 	data->values = calloc(nb_values, sizeof(value));
 }
 
@@ -104,7 +107,7 @@ void json_free(json_data* json) {
  */
 int deserialize(json_data* out, string json) {
 
-	if(try_parse_everything(json) != strlen(json)) {
+	if (try_parse_everything(json) != strlen(json)) {
 		fprintf(stderr, "Error: json read is not correct");
 		return -1;
 	}
@@ -157,8 +160,6 @@ int deserialize(json_data* out, string json) {
 	out->values = calloc(1024, sizeof(value));
 	while (*current_c != ']') {
 		nb_values++;
-		size_t size = nb_values * sizeof(value*);
-//		out->values = realloc(out->values, size);
 
 		value* v = calloc(sizeof(value), 1);
 		memset(value_str, 0, DATA_LENGTH);
@@ -190,9 +191,16 @@ int deserialize(json_data* out, string json) {
 			value_str[value_length] = '\0';
 			strcpy(v->type, TYPE_BOOL);
 
-			*(bool*) v->data = (bool) ((strcmp(value_str, "null") == 0) ? NULL : v->data);
-			*(bool*) v->data = (bool) ((strcmp(value_str, "false") == 0) ? false : v->data);
-			*(bool*) v->data = (bool) ((strcmp(value_str, "true") == 0) ? true : v->data);
+			if (strcmp(value_str, "null") == 0) {
+				*(bool*) v->data = false;
+			}
+			if (strcmp(value_str, "false") == 0) {
+				*(bool*) v->data = false;
+			}
+			if (strcmp(value_str, "true") == 0) {
+				*(bool*) v->data = true;
+			}
+
 		} else {
 			fprintf(stderr,
 			        "Error in json.code:\n %s \nThe type of value must be: number, string or boolean, found [%s]", json,
@@ -534,11 +542,11 @@ int try_parse_everything(char* str) {
 void json_print(json_data* json) {
 	printf("json.code = %s\n", json->code);
 	for (int i = 0; i < json->data_length; ++i) {
-		printf("\tjson.values[%d].type = %s\n", i, json->values[i].type);
+		printf("\tjson.values[%d].type = %s\n", i, (string) json->values[i].type);
 		if (strcmp(json->values[i].type, TYPE_STR) == 0) {
-			printf("\tjson.values[%d].data = \"%s\"\n", i, (char*) json->values[i].data);
+			printf("\tjson.values[%d].data = \"%s\"\n", i, (string) json->values[i].data);
 		} else if (strcmp(json->values[i].type, TYPE_BOOL) == 0) {
-			printf("\tjson.values[%d].data = %c\n", i, *(char*) json->values[i].data);
+			printf("\tjson.values[%d].data = %s\n", i, (string) json->values[i].data);
 		} else if (strcmp(json->values[i].type, TYPE_DOUBLE) == 0) {
 			printf("\tjson.values[%d].data = %lf\n", i, *(double*) json->values[i].data);
 		} else if (strcmp(json->values[i].type, TYPE_INT) == 0) {

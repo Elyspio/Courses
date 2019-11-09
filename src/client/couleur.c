@@ -139,6 +139,8 @@ static int compare_compteur(const void* ccp1, const void* ccp2, void* compte_bit
 		}
 		return -1;
 	}
+
+	return -2;
 }
 
 void trier_couleur_compteur(couleur_compteur* ccompteur) {

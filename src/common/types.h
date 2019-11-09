@@ -13,8 +13,8 @@ typedef char* string;
 // region Stack
 
 typedef struct stack {
-    char data[1000];
-    short length;
+	char data[1000];
+	short length;
 } stack;
 
 
@@ -25,13 +25,13 @@ typedef struct stack {
 #define TYPE_BOOL       "bool"
 #define MAX_TYPE_LENGTH 10
 typedef struct array {
-    int length;
-    void* data;
+	int length;
+	void* data;
 } array;
 
 typedef struct value {
-    string type;
-    void* data;
+	string type;
+	void* data;
 } value;
 
 bool stack_push(stack* stack, char elem);
