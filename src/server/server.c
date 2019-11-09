@@ -9,11 +9,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include "server.h"
-#include "../common/const.h"
 #include "../common/json.h"
 #include "../common/enum.h"
+#include "../common/tools.h"
 
 
 /**
@@ -25,7 +26,7 @@
  */
 int _response(int client_socket_fd, char* message) {
 	int data_size = write(client_socket_fd, (void*) message, strlen(message));
-
+	free(message);
 	if (data_size < 0) {
 		perror("erreur ecriture");
 		return -1;
@@ -165,26 +166,41 @@ int handle_request(int socket_fd) {
 }
 
 int _handle_error(int socket_fd, char* message) {
+	json_data json = json_create(1);
+	strcpy(json.code, CODE_ERROR);
+	json.values[0] = value_create();
+	json.values[0].data = malloc(strlen(message) * sizeof(char));
+	strcpy(json.values[0].data, message);
+	strcpy(json.values[0].type, TYPE_STR);
+
+	message = serialize(&json);
+
 	char* data = calloc(DATA_LENGTH, sizeof(char));
-	strncpy(data, PROMPT_ERROR, sizeof(PROMPT_ERROR));
-	strncat(data, message, DATA_LENGTH - strlen(message));
+	strcpy(data, message);
 	return _response(socket_fd, data);
 }
 
 int _handle_message(int socket_fd, json_data* json) {
 
 	if (json->data_length == 1) {
-		printf("Message recieved from client: %s\n", json->data[0]);
-		int prompt_length = strlen(PROMPT_MESSAGE);
+		printf("Message recieved from client: %s\n", json->values[0].data);
+		int prompt_length = strlen(CODE_MESSAGE);
 
 		printf("Please enter the response: ");
 		char* response_message = calloc(DATA_LENGTH - prompt_length, sizeof(char));
-		fgets(response_message, DATA_LENGTH - prompt_length, stdin);
-		response_message[strlen(response_message) - 1] = '\0';
+		scanf("%s", response_message); //		response_message[strlen(response_message) - 1] = '\0';
 
-		strncpy(json->data[0], response_message, strlen(response_message));
+		json_free(json);
+		json_data response_json = json_create(1);
+		strcpy(response_json.code, CODE_MESSAGE);
+		response_json.values[0] = value_create();
+		response_json.values[0].data = calloc(strlen(response_message), sizeof(char));
+		strcpy(response_json.values[0].type, TYPE_STR);
 
-		char* data = serialize(json);
+		strncpy(response_json.values[0].data, response_message, strlen(response_message));
+
+		string data = serialize(&response_json);
+		json_free(&response_json);
 
 		return _response(socket_fd, data);
 	}
@@ -196,57 +212,117 @@ int _handle_message(int socket_fd, json_data* json) {
 
 int _handle_calcul(int socket_fd, json_data* json) {
 	if (json->data_length == 3) {
-		double a = strtod(json->data[1], NULL);
-		double b = strtod(json->data[2], NULL);
-		char operator = json->data[0][0];
-		char* error_str;
-		double result = a;
+
+		if (strcmp(json->values[1].type, TYPE_INT) != 0 && strcmp(json->values[1].type, TYPE_DOUBLE) != 0) {
+			fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s were expected.",
+			        json->values[1].type, TYPE_INT, TYPE_DOUBLE);
+		}
+		if (strcmp(json->values[2].type, TYPE_INT) != 0 && strcmp(json->values[2].type, TYPE_DOUBLE) != 0) {
+			fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s.", json->values[2].type, TYPE_INT,
+			        TYPE_DOUBLE);
+		}
+
+		double* vars = calloc(json->data_length - 1, sizeof(double));
+
+
+		for (int i = 1; i < json->data_length; ++i) {
+			if (strcmp(json->values[i].type, TYPE_DOUBLE) == 0) {
+				vars[i - 1] = *(double*) json->values[i].data;
+			} else if (strcmp(json->values[i].type, TYPE_INT) == 0) {
+				vars[i - 1] = *(int*) json->values[i].data;
+			} else {
+				char error[100];
+				sprintf(error, "Wrong type for number %d %s", i, json->values[i].type);
+				return _handle_error(socket_fd, error);
+			}
+
+		}
+
+		char operator = *((char*) json->values[0].data);
+		double result = vars[0];
+		char error_str[100];
 		switch (operator) {
 			case '+':
-				result += b;
+				for (int i = 1; i < json->data_length - 1; ++i) {
+					result += vars[i];
+				}
 				break;
 			case '-':
-				result -= b;
+				for (int i = 1; i < json->data_length - 1; ++i) {
+					result -= vars[i];
+				}
 				break;
 			case '/':
-				result /= b;
+				for (int i = 1; i < json->data_length - 1; ++i) {
+					result /= vars[i];
+				}
 				break;
 			case '*':
-				result *= b;
+				for (int i = 1; i < json->data_length - 1; ++i) {
+					result *= vars[i];
+				}
 				break;
 
 			default:
-				error_str = calloc(100, sizeof(char));
-				sprintf(error_str, "Unknown operator '%c' could not continu", operator);
+				sprintf(error_str, "Unknown operator '%c' could not continue", operator);
 				return _handle_error(socket_fd, error_str);
 		}
-		json->data_length = 1;
-		sprintf(json->data[0], "%lf", result);
+		json_free(json);
+
+		json_data response_json = json_create(1);
+		strcpy(response_json.code, CODE_CALCUL);
+		response_json.values[0] = value_create();
+		string result_str = malloc(DATA_LENGTH * sizeof(char));
+		sprintf(result_str, "%lf", result);
+		if (is_double(result_str)) {
+			strcpy(response_json.values[0].type, TYPE_DOUBLE);
+			*(double*) response_json.values[0].data = result;
+		} else {
+
+			strcpy(response_json.values[0].type, TYPE_INT);
+			*(int*) response_json.values[0].data = (int) result;
+		}
 
 		char* data = calloc(DATA_LENGTH, sizeof(char));
-		strcpy(data, serialize(json));
+		strcpy(data, serialize(&response_json));
+		json_free(&response_json);
 		return _response(socket_fd, data);
 	}
 	return _handle_error(socket_fd, "to handle a calcul, we need 3 argument: operator nbA, nbB");
 }
 
 
-void plot(struct json_data* json) {
+void plot(int socket_fd, struct json_data* json) {
 
 	//Extraire le compteur et les couleurs RGB
-	FILE* p = popen("gnuplot -persist", "w");
-	printf("Plot");
-	fprintf(p, "set xrange [-15:15]\n");
-	fprintf(p, "set yrange [-15:15]\n");
-	fprintf(p, "set style fill transparent solid 0.9 noborder\n");
-	fprintf(p, "set title 'Top %d colors'\n", json->data_length);
-	fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
-	for (int i = 0; i < json->data_length; i++) {
-		int divide = 360 / json->data_length;
-		fprintf(p, "0 0 %d %d %d 0x%s\n", divide, (i - 1) * divide, i * divide, json->data[i] + 1);
+
+
+	FILE* p = popen("gnuplot -persist 2>/tmp/test", "w");
+	int fd = open("/tmp/test", O_RDONLY);
+
+	char str[100];
+	if(read(fd, str, 100) > 0) {
+		// + 18 for "Error on ..." chars
+		char error[100 + 18];
+		sprintf(error, "Error on gnuplot: %s", str);
+		_handle_error(socket_fd, error);
 	}
-	fprintf(p, "e\n");
-	printf("Plot: FIN\n");
+	else {
+		printf("Plot");
+		fprintf(p, "set xrange [-15:15]\n");
+		fprintf(p, "set yrange [-15:15]\n");
+		fprintf(p, "set style fill transparent solid 0.9 noborder\n");
+		fprintf(p, "set title 'Top %d colors'\n", json->data_length);
+		fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
+		for (int i = 0; i < json->data_length; i++) {
+			int divide = 360 / json->data_length;
+			fprintf(p, "0 0 %d %d %d 0x%s\n", divide, (i - 1) * divide, i * divide, json->values[i].data + 1);
+		}
+		fprintf(p, "e\n");
+		printf("Plot: FIN\n");
+
+	}
+	close(fd);
 	pclose(p);
 }
 
@@ -254,18 +330,25 @@ void plot(struct json_data* json) {
 int _handle_color(int socket_fd, json_data* json) {
 
 	if (json->data_length >= 1) {
-		plot(json);
-		json->data_length = 1;
-		json->data[0] = "colors are printed on the server";
-		return _response(socket_fd, serialize(json));
+		plot(socket_fd, json);
+
+		json_free(json);
+		struct json_data response_json = json_create(1);
+		strcpy(response_json.code, CODE_COLOR);
+		response_json.values[0] = value_create();
+		string message = "colors are printed on the server";
+		strcpy(response_json.values[0].type, TYPE_STR);
+		response_json.values[0].data = malloc(strlen(message) * sizeof(char));
+		strcpy(response_json.values[0].data, message);
+		return _response(socket_fd, serialize(&response_json));
 
 	}
 	return _handle_error(socket_fd, "to handle colors, we need at least one argument: nbColors [#color1 #color2]");
 }
 
 int _handle_name(int socket_fd, json_data* json) {
-	if (json->data_length == 1) {
-		printf("Client's name: %s\n", json->data[0]);
+	if (json->data_length == 1 && strcmp(json->values[0].type, TYPE_STR) == 0) {
+		printf("Client's name: %s\n", json->values[0].data);
 		return _response(socket_fd, serialize(json));
 	}
 	return _handle_error(socket_fd, "to handle name, we need one argument: name");

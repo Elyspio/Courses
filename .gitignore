@@ -1,9 +1,0 @@
-.idea
-.vscode
-build
-dist
-cmake-build-debug
-temp 
-CMakeLists.txt
-*.zip
-*.o

@@ -7,7 +7,7 @@
 
 void replace_all(char* src, char target, char by);
 
-void slice(char* src, int from, int to);
+char* slice(char* src, int from, int to);
 
 /**
  *

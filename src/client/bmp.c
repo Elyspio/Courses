@@ -10,7 +10,6 @@
 couleur_compteur* analyse_bmp_image(char* nom_de_fichier) {
 	couleur_compteur* cc = NULL;
 	int fd = open(nom_de_fichier, O_RDONLY);
-	printf("%s", nom_de_fichier);
 	if (fd < 0) {
 		perror("Erreur: open");
 		return 0;

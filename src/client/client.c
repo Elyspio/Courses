@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 
 #include "client.h"
+#include "../common/tools.h"
 #include "../common/const.h"
 #include "../common/enum.h"
 #include "../common/json.h"
@@ -101,7 +102,7 @@ int connect_client() {
  */
 int send_receive_message(int socketfd) {
 
-	const int prompt_length = strlen(PROMPT_MESSAGE);
+	const int prompt_length = strlen(CODE_MESSAGE);
 
 	char* data = calloc(DATA_LENGTH, sizeof(char));
 
@@ -109,19 +110,22 @@ int send_receive_message(int socketfd) {
 	printf("Your message (max %d characters): ", MESSAGE_MAX_LENGH);
 	scanf("%s", message);
 
-	json_data json = {
-			PROMPT_MESSAGE,
-			malloc(sizeof(char*)),
-			1
-	};
+	json_data json = json_create(1);
+	strcpy(json.code, CODE_MESSAGE);
+	value v = value_create();
+	strcpy(v.type, TYPE_STR);
+	v.data = malloc(strlen(message));
+	strcpy(v.data, message);
+	json.values[0] = v;
 
-	json.data[0] = message;
 	strcpy(data, serialize(&json));
 	int write_status = write(socketfd, data, strlen(data));
 	if (write_status < 0) {
 		perror("Error: write");
 		return -1;
 	}
+
+	json_free(&json);
 
 	memset(data, 0, DATA_LENGTH);
 	int read_status = read(socketfd, data, DATA_LENGTH);
@@ -130,20 +134,20 @@ int send_receive_message(int socketfd) {
 		return -2;
 	}
 
-	deserialize(&json, data);
+	json_data new_json = json_create(1);
+	deserialize(&new_json, data);
 
-	if (getCode(json.code) == MESSAGE) {
-		if (json.data_length == 1) {
-			printf("Recieved message from server: %s\n", json.data[0]);
+	if (getCode(new_json.code) == MESSAGE) {
+		if (new_json.data_length == 1 && strcmp(new_json.values[0].type, TYPE_STR) == 0) {
+			printf("Recieved message from server: %s\n", new_json.values[0].data);
 		} else {
 			perror("Error nb arguments in message response");
 		}
 	} else {
-		char error[100];
-		sprintf(error, "Wrong code in response to a message:  %s", json.code);
-		perror(error);
+		fprintf(stderr, "Wrong code in response to a message:  %s", new_json.code);
 	}
 
+	json_free(&new_json);
 	free(data);
 
 	return 0;
@@ -159,19 +163,41 @@ int send_receive_message(int socketfd) {
 int send_receive_calcul(int socketfd) {
 
 	char* data = calloc(DATA_LENGTH, sizeof(char));
+	json_data json;
+	json.code = NULL;
+	json_create_ptr(&json, 3);
 
-	json_data json = {
-			PROMPT_CALCUL,
-			malloc(3 * sizeof(char*)),
-			3
-	};
+	strcpy(json.code, CODE_CALCUL);
+	value number_b = value_create();
+	value number_a = value_create();
+	value operator = value_create();
+	strcpy(operator.type, TYPE_STR);
 
-	json.data[0] = malloc(sizeof(char));
-	json.data[1] = malloc(MESSAGE_MAX_LENGH / 2 * sizeof(char));
-	json.data[2] = malloc(MESSAGE_MAX_LENGH / 2 * sizeof(char));
+	string str_nb_a = calloc(MESSAGE_MAX_LENGH / 2, sizeof(char));
+	string str_nb_b = calloc(MESSAGE_MAX_LENGH / 2, sizeof(char));
 
 	printf("Send a compute: < + -  / * > <a> <b> ");
-	scanf("%s%s%s", json.data[0], json.data[1], json.data[2]);
+	scanf("%s %s %s", (char*) operator.data, str_nb_a, str_nb_b);
+
+	if (is_double(str_nb_a)) {
+		strcpy(number_a.type, TYPE_DOUBLE);
+		*(double*) number_a.data = strtod(str_nb_a, NULL);
+	} else {
+		strcpy(number_a.type, TYPE_INT);
+		*(int*) number_a.data = (int) strtol(str_nb_a, NULL, 10);
+	}
+	if (is_double(str_nb_b)) {
+		strcpy(number_b.type, TYPE_DOUBLE);
+		*(double*) number_b.data = strtod(str_nb_b, NULL);
+	} else {
+		strcpy(number_b.type, TYPE_INT);
+		*(int*) number_b.data = (int) strtol(str_nb_b, NULL, 10);
+	}
+
+	json.values[0] = operator;
+	json.values[1] = number_a;
+	json.values[2] = number_b;
+
 
 	strcpy(data, serialize(&json));
 
@@ -193,21 +219,22 @@ int send_receive_calcul(int socketfd) {
 	code code = getCode(json.code);
 	if (code == CALCUL) {
 		if (json.data_length == 1) {
-			printf("Result from server: %s\n", json.data[0]);
+			if (strcmp(json.values[0].type, TYPE_INT) == 0) {
+				printf("Result from server: %d\n", *(int*) json.values[0].data);
+
+			} else if (strcmp(json.values[0].type, TYPE_DOUBLE) == 0) {
+				printf("Result from server: %lf\n", *(double*) json.values[0].data);
+			} else {
+				fprintf(stderr, "Error type of value in compute response");
+			}
 		} else {
-			perror("Error nb arguments in compute response");
+			fprintf(stderr, "Wrong code in response to a message:  %s", json.code);
 		}
-	} else {
-		char error[100];
-		sprintf(error, "Wrong code in response to a message:  %s", json.code);
-		perror(error);
+		free(data);
+		return 0;
 	}
 
-	free(data);
-
-	return 0;
 }
-
 
 void analyse(char* pathname, char** colors, int nb_colors) {
 	//compte de couleurs
@@ -215,7 +242,7 @@ void analyse(char* pathname, char** colors, int nb_colors) {
 
 	char* temp_string = calloc(10, sizeof(char));
 
-	//choisir 10 couleurs
+	//choisir nb_colors couleurs
 	for (int count = 0; count < nb_colors && cc->size - count > 0; count++) {
 		if (cc->compte_bit == BITS32) {
 			sprintf(temp_string, "#%02x%02x%02x", cc->cc.cc24[cc->size - count].c.rouge,
@@ -254,13 +281,23 @@ int send_receive_color(int socketfd) {
 
 	char** colors = malloc(sizeof(char*) * nb_colors_to_send);
 	analyse(path, colors, nb_colors_to_send);
-	json_data json = {
-			PROMPT_COLOR,
-			colors,
-			nb_colors_to_send
-	};
 
-	strcpy(data, serialize(&json));
+	json_data json = json_create(nb_colors_to_send);
+	strcpy(json.code, CODE_COLOR);
+	for (int i = 0; i < nb_colors_to_send; ++i) {
+		value v = value_create();
+		strcpy(v.type, TYPE_STR);
+		v.data = malloc(sizeof(char) * strlen(colors[i]));
+		strcpy(v.data, colors[i]);
+		json.values[i] = v;
+	}
+
+	char* serialized_json = serialize(&json);
+	if(serialized_json == NULL) {
+		fprintf(stderr, "error in client.color json");
+		return -3;
+	}
+	strcpy(data, serialized_json);
 	int write_status = write(socketfd, data, strlen(data));
 	if (write_status < 0) {
 		perror("Error: write");
@@ -275,16 +312,23 @@ int send_receive_color(int socketfd) {
 	}
 
 	deserialize(&json, data);
-	if (getCode(json.code) == COLOR) {
+	code code1 = getCode(json.code);
+	if (code1 == COLOR) {
 		if (json.data_length == 1) {
-			printf("Response from server (color): %s\n", json.data[0]);
+			printf("Response from server (color): %s\n", json.values[0].data);
 		} else {
-			perror("Error nb arguments in color response");
+			fprintf(stderr, "Error nb arguments in color response");
 		}
-	} else {
-		char error[100];
-		sprintf(error, "Wrong code in color response:  %s", json.code);
-		perror(error);
+	} 
+	else if(code1 == ERROR) {
+		if (json.data_length == 1) {
+			printf("Error from server: %s\n", json.values[0].data);
+		} else {
+			fprintf(stderr, "Error nb arguments in color error: 1 needed");
+		}
+	}
+	else {
+		fprintf(stderr, "Wrong code in color response: %s", json.code);
 	}
 
 	free(colors);
@@ -297,16 +341,18 @@ int send_receive_name(int socketfd) {
 
 	char* data = calloc(DATA_LENGTH, sizeof(char));
 
-	char message[MESSAGE_MAX_LENGH];
+	char* message = malloc(MESSAGE_MAX_LENGH - 1);
 
 	gethostname(message, MESSAGE_MAX_LENGH - 1);
 
-	json_data json = {
-			PROMPT_NAME,
-			calloc(1, sizeof(char*)),
-			1
-	};
-	json.data[0] = message;
+	json_data json = json_create(1);
+	strcpy(json.code, CODE_NAME);
+	value v = value_create();
+	strcpy(v.type, TYPE_STR);
+	v.data = malloc(sizeof(char) * strlen(message));
+	strcpy(v.data, message);
+	free(message);
+	json.values[0] = v;
 
 	strcpy(data, serialize(&json));
 
@@ -326,14 +372,12 @@ int send_receive_name(int socketfd) {
 	deserialize(&json, data);
 	if (getCode(json.code) == NAME) {
 		if (json.data_length == 1) {
-			printf("Recieved name from server: %s\n", json.data[0]);
+			printf("Recieved name from server: %s\n", json.values[0].data);
 		} else {
-			perror("Error nb arguments in name response");
+			fprintf(stderr, "Error nb arguments in name response");
 		}
 	} else {
-		char error[100];
-		sprintf(error, "Wrong code in name response:  %s", json.code);
-		perror(error);
+		fprintf(stderr, "Wrong code in name response:  %s %s", json.code, json.values[0].data);
 	}
 
 	free(data);

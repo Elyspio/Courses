@@ -5,12 +5,14 @@
 #ifndef PROJECT_CONST_H
 #define PROJECT_CONST_H
 
-#define PROMPT_MESSAGE "message"
-#define PROMPT_COLOR "color"
-#define PROMPT_CALCUL "compute"
-#define PROMPT_NAME "name:"
-#define PROMPT_ERROR "error"
+#define CODE_MESSAGE "message"
+#define CODE_COLOR "color"
+#define CODE_CALCUL "compute"
+#define CODE_NAME "name:"
+#define CODE_ERROR "error"
 
+
+#define MAX_CODE_LENGTH 10
 #define DATA_LENGTH 1024
 #define MESSAGE_MAX_LENGH (DATA_LENGTH / 4)
 

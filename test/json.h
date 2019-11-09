@@ -15,14 +15,14 @@ typedef struct json_data {
 } json_data;
 
 char* serialize(json_data* json);
-string serialize2(json_data* json);
-json_data empty_data();
+
+json_data empty_json();
 
 int deserialize(json_data* jsonData, char* str);
 
-bool verify(string json_str);
-
 bool is_number(char c);
+
+bool test_code(string code);
 
 int try_parse_other(char* str);
 
@@ -37,5 +37,8 @@ int try_parse_object(char* str);
 int try_parse_whitespace(char* str);
 
 int try_parse_everything(char* str);
+
+void json_print(json_data *json);
+
 
 #endif //SRC_JSON_H

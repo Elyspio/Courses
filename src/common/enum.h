@@ -12,7 +12,8 @@ typedef enum {
 	CALCUL,
 	COLOR,
 	NAME,
-	NOT_IDENTIFIED
+	NOT_IDENTIFIED,
+	ERROR
 } code;
 
 code getCode(char* str);

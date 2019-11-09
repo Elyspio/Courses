@@ -5,6 +5,7 @@
 #include "types.h"
 #include "./json.h"
 #include "stdio.h"
+#include "string.h"
 #include "stdlib.h"
 #include "const.h"
 
@@ -15,39 +16,50 @@ int main(int argc, char** args) {
 //    try_parsing();
 
 
-	json_data json = empty_data();
-	json.values = malloc(sizeof(value) * 4);
-	json.code = CODE_CALCUL;
-	value v1;
-	v1.data = malloc(sizeof(int));
-	*(int*) v1.data = 2;
-	v1.type = TYPE_INT;
-	json.values[0] = v1;
-	value v2;
-	v2.data = "toto";
-	v2.type = TYPE_STR;
-	json.values[1] = v2;
-	value v3;
-	v3.data = malloc(sizeof(double));
-	*(double *) v3.data = 2;
-	v3.type = TYPE_DOUBLE;
-	json.values[2] = v3;
 
-	value v4;
-	v4.data = "null";
-	v4.type = TYPE_BOOL;
-	json.values[3] = v4;
-	json.data_length = 4;
+//
+//	json_data json;
+//	json.data_length = 0;
+//	json.values = malloc(sizeof(value) * 4);
+//	json.code = CODE_CALCUL;
+//	value v1;
+//	v1.data = malloc(sizeof(int));
+//	*(int*) v1.data = 2;
+//	v1.type = TYPE_INT;
+//	json.values[0] = v1;
+//
+//	value v3;
+//	v3.data = malloc(sizeof(double));
+//	*(double *) v3.data = 2;
+//	v3.type = TYPE_DOUBLE;
+//	json.values[1] = v3;
+//
+//	value v4;
+//	v4.data = "null";
+//	v4.type = TYPE_BOOL;
+//	json.values[3] = v4;
+//	value v2;
+//	v2.data = "toto";
+//	v2.type = TYPE_STR;
+//	json.values[2] = v2;
+//	json.data_length = 4;
+//
+//	string string1 = serialize(&json);
+//	printf("%s", "{\"code\":\"compute\",\"values\":[2,2.000000,\"toto\",null]}");
+	json_data *data = malloc(sizeof(json_data));
+	char* string = malloc(1024);
+	strcpy(string,"{\"code\":\"compute\",\"values\":[2,2.000000,\"toto\",null]}");
+	deserialize(data, string);
 
-	string string1 = serialize(&json);
-	printf("%s", string1);
+    json_print(data);
+
 
 //    void ** voids = malloc(4 * sizeof(void*));
 //    voids[0] = malloc(sizeof(int) * 10);
 //    voids[1] = malloc(sizeof(char) * 250);
 //    voids[2] = malloc(sizeof(double) * 5 );
 //
-//    ((int*) voids[0])[0] = 1;
+//    ((int*) voids[0])[0] = 1;DATA_LENGTH
 //    ((char*) voids[1])[0] = 'A';
 //    ((double *) voids[2])[0] = 23.5;
 //

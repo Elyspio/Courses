@@ -9,6 +9,7 @@
 
 - Les échanges se font à travers des sockets.
 
+- Les échanges se font au format json 
 
 # Fichiers
 
@@ -21,26 +22,27 @@ CONTRIBUTORS.md
 Makefile
 
 src
-- task2
-    - client
-        - bmp.c
-        - bmp.h
-        - client.c
-        - client.h
-        - couleur.c
-        - couleur.h
-    - common
-        - const.c
-        - const.h
-        - enum.c
-        - enum.h
-        - json.c
-        - json.h
-        - tools.c
-        - tools.h
-    - server
-        - server.c
-        - server.h
+- client
+    - bmp.c
+    - bmp.h
+    - client.c
+    - client.h
+    - couleur.c
+    - couleur.h
+- common
+    - const.c
+    - const.h
+    - enum.c
+    - enum.h
+    - json.c (verification.c)
+    - json.h (verification.h)
+    - tools.c
+    - tools.h
+    - types.c
+    - types.h
+- server
+    - server.c
+    - server.h
 
 
 # Bibliothèques
@@ -57,4 +59,8 @@ src
 
 # Difficulté
 
-Moyen (parsing réel du json et non brutforce)
+Dur
+- Problème avec realloc et la gestion de la mémoire en général, 
+- Les couleurs récupérées par 'analyse' ne sont pas les bonnes, 
+- Les void* sont capricieux
++ Projet très chronophage si l'on veut faire quelque chose de générique

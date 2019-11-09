@@ -5,9 +5,12 @@
 #ifndef PROJECT_TOOLS_H
 #define PROJECT_TOOLS_H
 
+#include "const.h"
+#include "types.h"
+
 void replace_all(char* src, char target, char by);
 
-void slice(char* src, int from, int to);
+char* slice(char* src, int from, int to);
 
 /**
  *
@@ -21,5 +24,7 @@ void format_time(char* dest);
 void escape_str(char* dest, char* src);
 
 int unescape_str(char* dest, char* src);
+
+bool is_double(string str);
 
 #endif //PROJECT_TOOLS_H

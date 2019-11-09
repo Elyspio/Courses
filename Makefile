@@ -1,6 +1,6 @@
 CC = gcc
 
-CC_FLAGS = -std=c11 -Wall -pedantic
+CC_FLAGS = -Wall -pedantic
 
 SERVER = server
 CLIENT = client

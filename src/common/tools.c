@@ -3,9 +3,11 @@
 //
 
 #include <time.h>
-#include "tools.h"
 #include "string.h"
 #include "stdio.h"
+#include "stdlib.h"
+#include "types.h"
+#include "const.h"
 
 void replace_all(char* src, char target, char by) {
 	for (int i = 0; src[i] != '\0'; i++) {
@@ -15,23 +17,16 @@ void replace_all(char* src, char target, char by) {
 	}
 }
 
-void slice(char* src, int from, int to) {
-	int src_length = strlen(src);
-	if (to + 1 < src_length) {
-		src[to + 1] = '\0';
-	}
-	int nb_char_moved;
-	int nb_char_to_move = to - from;
-	for (nb_char_moved = 0; nb_char_moved <= nb_char_to_move; nb_char_moved++) {
-		src[nb_char_moved] = src[from + nb_char_moved];
-	}
-	src[nb_char_moved] = '\0';
+char* slice(char* src, int from, int to) {
+	char* str = malloc(strlen(src));
+	strncpy(str , src + from, to- from );
+	return str;
 }
 
 void remove_all(char* src, const char* chars) {
 
 	for (int i = 0; src[i] != '\0'; ++i) {
-		for (int j = 0; j < chars[j] != '\0'; ++j) {
+		for (int j = 0; chars[j] != '\0'; ++j) {
 			// foreach char in chars
 			if (src[i] == chars[j]) {
 				// move chars
@@ -90,4 +85,23 @@ int unescape_str(char* dest, char* src) {
 	}
 	*(dest) = '\0';
 	return size;
+}
+
+bool is_double(string str) {
+	string alias =str;
+	bool got_point = false;
+	bool got_number_after_point = false;
+	for(; *alias != '\0';  alias++) {
+		if (*alias  == '.') {
+			got_point = true;
+		}
+		if(got_point) {
+			if(*alias > '0' && *alias <= '9') {
+				got_number_after_point = true;
+			}
+		}
+	}
+
+
+	return got_number_after_point;
 }
