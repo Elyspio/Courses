@@ -4,11 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/media/windows/Progs/new_courses/src/common/enum.c" "/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir/src/common/enum.c.o"
-  "/media/windows/Progs/new_courses/src/common/json.c" "/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir/src/common/json.c.o"
-  "/media/windows/Progs/new_courses/src/common/tools.c" "/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir/src/common/tools.c.o"
-  "/media/windows/Progs/new_courses/src/common/types.c" "/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir/src/common/types.c.o"
-  "/media/windows/Progs/new_courses/src/server/server.c" "/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir/src/server/server.c.o"
+  "C:/courses/src/common/enum.c" "C:/courses/cmake-build-debug/CMakeFiles/server.dir/src/common/enum.c.obj"
+  "C:/courses/src/common/json.c" "C:/courses/cmake-build-debug/CMakeFiles/server.dir/src/common/json.c.obj"
+  "C:/courses/src/common/tools.c" "C:/courses/cmake-build-debug/CMakeFiles/server.dir/src/common/tools.c.obj"
+  "C:/courses/src/common/types.c" "C:/courses/cmake-build-debug/CMakeFiles/server.dir/src/common/types.c.obj"
+  "C:/courses/src/server/server.c" "C:/courses/cmake-build-debug/CMakeFiles/server.dir/src/server/server.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 

@@ -1,0 +1,16 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/test.dir/src/common/enum.c.obj"
+  "CMakeFiles/test.dir/src/common/json.c.obj"
+  "CMakeFiles/test.dir/src/common/tools.c.obj"
+  "CMakeFiles/test.dir/src/common/types.c.obj"
+  "CMakeFiles/test.dir/src/test/test.c.obj"
+  "libtest.dll.a"
+  "test.exe"
+  "test.exe.manifest"
+  "test.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/test.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

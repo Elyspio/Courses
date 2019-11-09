@@ -39,3 +39,15 @@ add_executable(server
         src/server/server.h
         )
 
+add_executable(test
+        src/common/const.h
+        src/common/enum.c
+        src/common/enum.h
+        src/common/json.c
+        src/common/json.h
+        src/common/tools.c
+        src/common/tools.h
+        src/common/types.c
+        src/common/types.h
+        src/test/test.c
+        )

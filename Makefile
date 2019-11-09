@@ -4,16 +4,18 @@ CC_FLAGS = -Wall -pedantic
 
 SERVER = server
 CLIENT = client
-COMMON_FOLDER = common
 
 SRC_FOLDER = src
-TEST_FOLDER = test
 DIST_FOLDER = dist
 BUILD_FOLDER = build
+
+COMMON = common
+TEST = test
 
 
 SERVER_SRC = server.c
 CLIENT_SRC = client.c
+TEST_SRC = test.c
 
 SERVER_EXEC = server.app
 CLIENT_EXEC = client.app
@@ -29,38 +31,43 @@ pkg:
 
 
 env:
-	@mkdir -p $(SRC_FOLDER)/$(SERVER) $(SRC_FOLDER)/$(CLIENT) $(SRC_FOLDER)/$(COMMON_FOLDER)
-	@mkdir -p $(BUILD_FOLDER)/$(SERVER) $(BUILD_FOLDER)/$(CLIENT) $(BUILD_FOLDER)/$(TEST_FOLDER)/
-	@mkdir -p $(DIST_FOLDER) $(DIST_FOLDER)/$(TEST_FOLDER) 
+	@mkdir -p $(SRC_FOLDER)/$(SERVER) $(SRC_FOLDER)/$(CLIENT) $(SRC_FOLDER)/$(COMMON)
+	@mkdir -p $(BUILD_FOLDER)/$(SERVER) $(BUILD_FOLDER)/$(CLIENT) $(BUILD_FOLDER)/$(TEST)/=
+	@mkdir -p $(DIST_FOLDER)
 	@echo "Done"
 
-task:
-	@echo "Compiling task"
+compile_common: env
+	@ mkdir -p $(BUILD_FOLDER)/$(COMMON)
+	@echo "Compiling common files"
+	@ $(CC) $(CC_FLAGS) -c  `find $(SRC_FOLDER)/$(COMMON) -type f -name "*.c"`
+	@ mv *.o $(BUILD_FOLDER)/$(COMMON)
 
-	@ $(CC) $(CC_FLAGS) -c `find src -type f -name "*.c" ! -name "$(SERVER_SRC)"`
+server: compile_common
+	@ $(CC) $(CC_FLAGS) -c  `find $(SRC_FOLDER)/$(SERVER) -type f -name "*.c"`
+	@ mv *.o $(BUILD_FOLDER)/$(SERVER)
+	@ $(CC) -o $(DIST_FOLDER)/$(SERVER_EXEC)  $(BUILD_FOLDER)/$(SERVER)/*.o $(BUILD_FOLDER)/$(COMMON)/*.o
+	@ echo "Server is available at $(DIST_FOLDER)/$(SERVER_EXEC)"
+
+client: compile_common
+	@ $(CC) $(CC_FLAGS) -c  `find $(SRC_FOLDER)/$(CLIENT) -type f -name "*.c"`
 	@ mv *.o $(BUILD_FOLDER)/$(CLIENT)
-	@ $(CC) -o $(DIST_FOLDER)/$(CLIENT_EXEC)  $(BUILD_FOLDER)/$(CLIENT)/*.o
+	@ $(CC) -o $(DIST_FOLDER)/$(CLIENT_EXEC)  $(BUILD_FOLDER)/$(CLIENT)/*.o $(BUILD_FOLDER)/$(COMMON)/*.o
+	@ echo "Client is available at $(DIST_FOLDER)/$(CLIENT_EXEC)"
 
-	@echo "Client is at $(DIST_FOLDER)/$(CLIENT_EXEC)"
+test: compile_common
+	@ $(CC) $(CC_FLAGS) -c  `find $(SRC_FOLDER)/$(TEST) -type f -name "*.c"`
+	@ mv *.o $(BUILD_FOLDER)/$(TEST)
+	@ $(CC) -o $(DIST_FOLDER)/$(TEST_EXEC)  $(BUILD_FOLDER)/$(TEST)/*.o $(BUILD_FOLDER)/$(COMMON)/*.o
+	@ echo "Test is available at $(DIST_FOLDER)/$(TEST_EXEC)"
 
-	@$(CC) $(CC_FLAGS) -c  `find src -type f -name "*.c" ! -name "$(CLIENT_SRC)"`
-	@mv *.o $(BUILD_FOLDER)/$(SERVER)
-	@$(CC) -o $(DIST_FOLDER)/$(SERVER_EXEC)  $(BUILD_FOLDER)/$(SERVER)/*.o
-
-	@echo "Server is at $(DIST_FOLDER)/$(SERVER_EXEC)"
+task: client server test
 
 
 env_test:
-	@ mkdir -p $(SRC_FOLDER)/$(TEST_FOLDER)
-	@ mkdir -p $(BUILD_FOLDER)/$(TEST_FOLDER)
-	@ mkdir -p $(DIST_FOLDER)/$(TEST_FOLDER)
+	@ mkdir -p $(SRC_FOLDER)/$(TEST)
+	@ mkdir -p $(BUILD_FOLDER)/$(TEST)
+	@ mkdir -p $(DIST_FOLDER)/$(TEST)
 
-test:
-	@ echo "Compile test"
-	 $(CC) $(CC_FLAGS) -c $(SRC_FOLDER)/$(TEST_FOLDER)/*.c
-	 mv *.o $(BUILD_FOLDER)/$(TEST_FOLDER)
-	 $(CC) -o $(DIST_FOLDER)/$(TEST_FOLDER)/$(TEST_EXEC) $(BUILD_FOLDER)/$(TEST_FOLDER)/*.o
-	@ echo test at $(DIST_FOLDER)/$(TEST_FOLDER)/$(TEST_EXEC)
 clean: 
 	@ rm -rdf $(DIST_FOLDER)
 	@ rm -rdf $(BUILD_FOLDER)

@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/common/const.h
+
+../src/common/json.h
+types.h
+../src/common/types.h
+
+../src/common/tools.h
+const.h
+../src/common/const.h
+types.h
+../src/common/types.h
+
+../src/common/types.h
+
+C:/courses/src/test/test.c
+types.h
+-
+stdlib.h
+-
+stdio.h
+-
+string.h
+-
+json.h
+-
+tools.h
+-
+

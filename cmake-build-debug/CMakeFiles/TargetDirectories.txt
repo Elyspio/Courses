@@ -1,4 +1,5 @@
-/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/edit_cache.dir
-/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/client.dir
-/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/media/windows/Progs/new_courses/cmake-build-debug/CMakeFiles/server.dir
+C:/courses/cmake-build-debug/CMakeFiles/client.dir
+C:/courses/cmake-build-debug/CMakeFiles/server.dir
+C:/courses/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+C:/courses/cmake-build-debug/CMakeFiles/test.dir
+C:/courses/cmake-build-debug/CMakeFiles/edit_cache.dir

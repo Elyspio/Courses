@@ -18,6 +18,7 @@ int _handle_name(int socket_fd, json_data* json);
 int _handle_error(int socket_fd, char* message);
 
 int _response(int client_socket_fd, char* message);
+double _get_avg(double* vars, int nb_values);
 
 int listen_client();
 

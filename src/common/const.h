@@ -17,6 +17,17 @@
 #define MESSAGE_MAX_LENGH (DATA_LENGTH / 4)
 
 
+#define COMPUTE_OPERATOR_ADD '+'
+#define COMPUTE_OPERATOR_SUB '-'
+#define COMPUTE_OPERATOR_DIV '/'
+#define COMPUTE_OPERATOR_MUL '*'
+#define COMPUTE_OPERATOR_AVG "avg"
+#define COMPUTE_OPERATOR_MIN "min"
+#define COMPUTE_OPERATOR_MAX "max"
+#define COMPUTE_OPERATOR_SD "sd"
+
+
+
 #define PORT 1337
 
 typedef char bool;
