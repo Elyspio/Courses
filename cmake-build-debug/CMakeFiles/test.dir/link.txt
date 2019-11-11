@@ -1,1 +1,0 @@
-/usr/bin/cc -g   CMakeFiles/test.dir/src/common/enum.c.o CMakeFiles/test.dir/src/common/json.c.o CMakeFiles/test.dir/src/common/tools.c.o CMakeFiles/test.dir/src/common/types.c.o CMakeFiles/test.dir/src/test/test.c.o  -o test 
