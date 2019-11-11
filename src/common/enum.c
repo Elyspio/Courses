@@ -16,7 +16,7 @@ code getCode(char* str) {
 	if (strncmp(str, CODE_COLOR, strlen(CODE_COLOR)) == 0) {
 		code = COLOR;
 	}
-	if (strncmp(str, CODE_CALCUL, strlen(CODE_CALCUL)) == 0) {
+	if (strncmp(str, CODE_COMPUTE, strlen(CODE_COMPUTE)) == 0) {
 		code = CALCUL;
 	}
 	if (strncmp(str, CODE_NAME, strlen(CODE_NAME)) == 0) {

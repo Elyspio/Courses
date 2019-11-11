@@ -42,6 +42,6 @@ int main(int argc, char **args) {
         ptr = strtok(NULL, delemiter);
 
     }
-    strcpy(json.code, CODE_CALCUL);
+    strcpy(json.code, CODE_COMPUTE);
     json_print(&json);
 }

@@ -157,7 +157,7 @@ int send_receive_message(int socketfd) {
  * @return 0 if everything has worked corectly
  * @return -1 if could not write in socket
  * @return -2 if could not read from socket
- * @return -3 if the response code is not CODE_CALCUL
+ * @return -3 if the response code is not CODE_COMPUTE
  */
 int send_receive_calcul(int socketfd) {
 
@@ -166,7 +166,7 @@ int send_receive_calcul(int socketfd) {
     json.code = NULL;
     json_create_ptr(&json, 3);
 
-    strcpy(json.code, CODE_CALCUL);
+    strcpy(json.code, CODE_COMPUTE);
 
 
     printf("Send a compute: < + -  / * > <1> <2> <n> ");
@@ -185,7 +185,6 @@ int send_receive_calcul(int socketfd) {
     char *ptr = strtok(s2, delemiter);
     int i = 1;
     while (ptr != NULL) {
-        printf("%d | %s\n", i, ptr);
         if (try_parse_number(ptr) > 0) {
             json.data_length = i+1;
             json.values[i] = value_create();
@@ -193,7 +192,6 @@ int send_receive_calcul(int socketfd) {
                 *(double *) json.values[i].data = strtod(ptr, NULL);
                 strcpy(json.values[i].type, TYPE_DOUBLE);
             } else {
-                printf("%s is a int\n", ptr);
                 *(int *) json.values[i].data = (int) strtod(ptr, NULL);
                 strcpy(json.values[i].type, TYPE_INT);
             }
@@ -212,7 +210,6 @@ int send_receive_calcul(int socketfd) {
 
     strcpy(data, serialize(&json));
 
-    printf("JSON, %s", data);
 
     int write_status = write(socketfd, data, strlen(data));
     if (write_status < 0) {

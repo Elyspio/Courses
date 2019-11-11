@@ -7,7 +7,7 @@
 
 #define CODE_MESSAGE "message"
 #define CODE_COLOR "color"
-#define CODE_CALCUL "compute"
+#define CODE_COMPUTE "compute"
 #define CODE_NAME "name:"
 #define CODE_ERROR "error"
 

@@ -232,7 +232,7 @@ bool test_code(string code) {
 			(strncmp(code, CODE_COLOR, strlen(CODE_COLOR)) == 0) ||
 			(strncmp(code, CODE_ERROR, strlen(CODE_ERROR)) == 0) ||
 			(strncmp(code, CODE_MESSAGE, strlen(CODE_MESSAGE)) == 0) ||
-			(strncmp(code, CODE_CALCUL, strlen(CODE_CALCUL)) == 0);
+			(strncmp(code, CODE_COMPUTE, strlen(CODE_COMPUTE)) == 0);
 }
 
 enum objectState {

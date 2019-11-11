@@ -1,12 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/server.dir/src/common/enum.c.obj"
-  "CMakeFiles/server.dir/src/common/json.c.obj"
-  "CMakeFiles/server.dir/src/common/tools.c.obj"
-  "CMakeFiles/server.dir/src/common/types.c.obj"
-  "CMakeFiles/server.dir/src/server/server.c.obj"
-  "libserver.dll.a"
-  "server.exe"
-  "server.exe.manifest"
+  "CMakeFiles/server.dir/src/common/enum.c.o"
+  "CMakeFiles/server.dir/src/common/json.c.o"
+  "CMakeFiles/server.dir/src/common/tools.c.o"
+  "CMakeFiles/server.dir/src/common/types.c.o"
+  "CMakeFiles/server.dir/src/server/server.c.o"
+  "server"
   "server.pdb"
 )
 

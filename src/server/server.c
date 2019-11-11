@@ -211,7 +211,7 @@ int _handle_message(int socket_fd, json_data *json) {
 }
 
 int _handle_calcul(int socket_fd, json_data *json) {
-    if (json->data_length == 3) {
+    if (json->data_length >= 3) {
 
         if (strcmp(json->values[1].type, TYPE_INT) != 0 && strcmp(json->values[1].type, TYPE_DOUBLE) != 0) {
             fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s were expected.",
@@ -242,7 +242,6 @@ int _handle_calcul(int socket_fd, json_data *json) {
         }
 
         char operator = *((char *) json->values[0].data);
-        printf("operator %c\n", operator);
         double result = vars[0];
         char error_str[100];
         switch (operator) {
@@ -304,7 +303,7 @@ int _handle_calcul(int socket_fd, json_data *json) {
         json_free(json);
 
         json_data response_json = json_create(1);
-        strcpy(response_json.code, CODE_CALCUL);
+        strcpy(response_json.code, CODE_COMPUTE);
         response_json.values[0] = value_create();
         string result_str = malloc(DATA_LENGTH * sizeof(char));
         sprintf(result_str, "%lf", result);

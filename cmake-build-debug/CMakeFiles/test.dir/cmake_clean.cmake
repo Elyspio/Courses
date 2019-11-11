@@ -1,12 +1,10 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/test.dir/src/common/enum.c.obj"
-  "CMakeFiles/test.dir/src/common/json.c.obj"
-  "CMakeFiles/test.dir/src/common/tools.c.obj"
-  "CMakeFiles/test.dir/src/common/types.c.obj"
-  "CMakeFiles/test.dir/src/test/test.c.obj"
-  "libtest.dll.a"
-  "test.exe"
-  "test.exe.manifest"
+  "CMakeFiles/test.dir/src/common/enum.c.o"
+  "CMakeFiles/test.dir/src/common/json.c.o"
+  "CMakeFiles/test.dir/src/common/tools.c.o"
+  "CMakeFiles/test.dir/src/common/types.c.o"
+  "CMakeFiles/test.dir/src/test/test.c.o"
+  "test"
   "test.pdb"
 )
 
