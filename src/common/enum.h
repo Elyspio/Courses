@@ -16,6 +16,10 @@ typedef enum {
 	ERROR
 } code;
 
+/**
+ * Get the code which his representation is str
+ * @param str the string representation of the code
+ */
 code getCode(char* str);
 
 #endif //CPROJECT_ENUM_H

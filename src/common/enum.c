@@ -1,11 +1,12 @@
 //
-// Created by elyspio on 08/10/2019.
+// Créer par Jonathan Guichard
 //
 #include <string.h>
 
 #include "enum.h"
 #include "json.h"
 #include "const.h"
+
 
 code getCode(char* str) {
 

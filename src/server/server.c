@@ -17,13 +17,7 @@
 #include "../common/tools.h"
 
 
-/**
- *
- * @param client_socket_fd
- * @param message
- * @return 0 if everything has worked correctly
- * @return -1 if could not write data into the socket
- */
+
 int _response(int client_socket_fd, char *message) {
     int data_size = write(client_socket_fd, (void *) message, strlen(message));
     free(message);
@@ -38,10 +32,9 @@ int _response(int client_socket_fd, char *message) {
 int main() {
 
 
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-
-    printf("Server started at %d:%02d:%02d\n", tm.tm_hour, tm.tm_min, tm.tm_sec);
+    string formatTime = format_time();
+    printf("Server started at %s\n", formatTime);
+    free(formatTime);
 
     int client_socket_fd = listen_client();
     if (client_socket_fd > 0) {
@@ -56,14 +49,7 @@ int main() {
     return 0;
 }
 
-/**
- *
- * @return 0 if everything has worked correctly
- * @return -1 if could not open a socket
- * @return -2 if could not bind socket and the server
- * @return -3 if could not connect to a client
- *
- */
+
 int listen_client() {
     int socketfd;
     int bind_status;
@@ -85,7 +71,7 @@ int listen_client() {
     //détails du serveur (adresse et port)
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(SERVER_PORT);
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
     bind_status = bind(socketfd, (struct sockaddr *) &server_addr, sizeof(server_addr));
@@ -105,10 +91,9 @@ int listen_client() {
         return -3;
     }
 
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    printf("Client connected at %d:%02d:%02d\n", tm.tm_hour, tm.tm_min, tm.tm_sec);
-
+    string formatTime = format_time();
+    printf("Client connected at %s\n", formatTime);
+    free(formatTime);
     return client_socket_fd;
 }
 
@@ -143,7 +128,7 @@ int handle_request(int socket_fd) {
             error_code = _handle_message(socket_fd, &json);
             break;
         case CALCUL:
-            error_code = _handle_calcul(socket_fd, &json);
+            error_code = _handle_compute(socket_fd, &json);
             break;
         case COLOR:
             error_code = _handle_color(socket_fd, &json);
@@ -210,15 +195,16 @@ int _handle_message(int socket_fd, json_data *json) {
 
 }
 
-int _handle_calcul(int socket_fd, json_data *json) {
+
+int _handle_compute(int socket_fd, json_data *json) {
     if (json->data_length >= 3) {
 
         if (strcmp(json->values[1].type, TYPE_INT) != 0 && strcmp(json->values[1].type, TYPE_DOUBLE) != 0) {
-            fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s were expected.",
+            fprintf(stderr, "Type error in _handle_compute, %s recieved when %s or %s were expected.",
                     json->values[1].type, TYPE_INT, TYPE_DOUBLE);
         }
         if (strcmp(json->values[2].type, TYPE_INT) != 0 && strcmp(json->values[2].type, TYPE_DOUBLE) != 0) {
-            fprintf(stderr, "Type error in _handle_calcul, %s recieved when %s or %s.", (string) json->values[2].type,
+            fprintf(stderr, "Type error in _handle_compute, %s recieved when %s or %s.", (string) json->values[2].type,
                     TYPE_INT,
                     TYPE_DOUBLE);
         }
@@ -328,15 +314,19 @@ int _handle_calcul(int socket_fd, json_data *json) {
 }
 
 
-double _get_avg(double *vars, int nb_values) {
-    double sum = vars[0];
+double _get_avg(double *values, int nb_values) {
+    double sum = values[0];
     for (int i = 1; i < nb_values; ++i) {
-        sum += vars[i];
+        sum += values[i];
     }
     return sum / nb_values;
 }
 
-
+/**
+ * Print the graph
+ * @param socket_fd
+ * @param json
+ */
 void plot(int socket_fd, struct json_data *json) {
 
     //Extraire le compteur et les couleurs RGB
@@ -375,6 +365,12 @@ void plot(int socket_fd, struct json_data *json) {
 }
 
 
+/**
+ *
+ * @param socket_fd
+ * @param json
+ * @return
+ */
 int _handle_color(int socket_fd, json_data *json) {
 
     if (json->data_length >= 1) {
@@ -393,6 +389,7 @@ int _handle_color(int socket_fd, json_data *json) {
     }
     return _handle_error(socket_fd, "to handle colors, we need at least two arguments: nbColors [#color1 #color2]");
 }
+
 
 int _handle_name(int socket_fd, json_data *json) {
     if (json->data_length == 1 && strcmp(json->values[0].type, TYPE_STR) == 0) {

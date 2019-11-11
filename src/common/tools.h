@@ -8,18 +8,37 @@
 #include "const.h"
 #include "types.h"
 
+/**
+ * Replace all char from a char to another char
+ * @param src
+ * @param target
+ * @param by
+ */
 void replace_all(char* src, char target, char by);
 
-char* slice(char* src, int from, int to);
+/**
+ * @returns a substring of src, have to be freed.
+ * @param src initial string
+ * @param from initial index
+ * @param to last index
+ * @alloc
+ */
+string slice(char* src, int from, int to);
 
 /**
  *
  * @param src
- * @param chars array of char to remove, MUST end by NULL
+ * @param chars to be removed must end with '\0'
+ * @return a new string without all char that are in chars
+ * @alloc
  */
-void remove_all(char* src, const char* chars);
+string remove_all(const char* src, const char* chars);
 
-void format_time(char* dest);
+/**
+ * @return the current time as a string hh:mm:ss
+ * @alloc
+ */
+string format_time();
 
 void escape_str(char* dest, char* src);
 

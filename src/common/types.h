@@ -18,16 +18,6 @@ typedef struct stack {
 } stack;
 
 
-#define TYPE_STR        "string"
-#define TYPE_INT        "int"
-#define TYPE_DOUBLE     "double"
-#define TYPE_FLOAT      "float"
-#define TYPE_BOOL       "bool"
-#define MAX_TYPE_LENGTH 10
-typedef struct array {
-	int length;
-	void* data;
-} array;
 
 typedef struct value {
 	string type;

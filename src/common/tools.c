@@ -17,37 +17,50 @@ void replace_all(char* src, char target, char by) {
 	}
 }
 
-char* slice(char* src, int from, int to) {
-	char* str = malloc(strlen(src));
+string slice(char* src, int from, int to) {
+    string str = malloc(strlen(src) - to - from);
 	strncpy(str, src + from, to - from);
 	return str;
 }
 
-void remove_all(char* src, const char* chars) {
 
-	for (int i = 0; src[i] != '\0'; ++i) {
-		for (int j = 0; chars[j] != '\0'; ++j) {
-			// foreach char in chars
-			if (src[i] == chars[j]) {
-				// move chars
-				for (int k = i; src[k + 1] != '\0'; ++k) {
-					src[k] = src[k + 1];
-				}
-				src[strlen(src) - 1] = '\0';
-			}
-		}
-	}
+
+string remove_all(const char *src, const char *chars) {
+
+    int nb_chars_to_remove = 0;
+    for(char c = src[0]; c != '\0'; c++) {
+        for(char c_searched = chars[0]; c_searched != '\0'; c_searched ++) {
+            if(c == c_searched) {
+                nb_chars_to_remove++;
+            }
+        }
+    }
+
+    string str = calloc(nb_chars_to_remove, sizeof(char));
+    int index_in_str = 0;
+    for (int i = 0; src[i] != '\0'; ++i) {
+        for (int j = 0; chars[j] != '\0'; ++j) {
+            // foreach char in chars
+            if (src[i] != chars[j]) {
+                str[index_in_str] = src[i];
+                index_in_str++;
+            }
+        }
+    }
+
+    return str;
 }
 
 
-void format_time(char* dest) {
-	time_t raw_time;
+string format_time() {
+	string str = calloc(6, sizeof(char));
+    time_t raw_time;
 	struct tm* times;
 
 	time(&raw_time);
 	times = localtime(&raw_time);
-
-	sprintf(dest, "%02d:%02d:%02d", times->tm_hour, times->tm_min, times->tm_sec);
+	sprintf(str, "%02d:%02d:%02d", times->tm_hour, times->tm_min, times->tm_sec);
+    return str;
 }
 
 void escape_str(char* dest, char* src) {
