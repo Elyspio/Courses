@@ -9,7 +9,7 @@ int connect_client();
 
 int send_receive_message(int socketfd);
 
-int send_receive_calcul(int socketfd);
+int send_receive_compute(int socketfd);
 
 int send_receive_color(int socketfd);
 

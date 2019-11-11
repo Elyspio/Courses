@@ -48,7 +48,7 @@ void disp_menu(int socked_id) {
                 send_receive_name(socked_id);
                 break;
             case 3:
-                send_receive_calcul(socked_id);
+                send_receive_compute(socked_id);
                 break;
             case 4:
                 send_receive_color(socked_id);
@@ -81,7 +81,7 @@ int connect_client() {
     //détails du serveur (adresse et port)
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(SERVER_PORT);
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
     //demande de connection au serveur
@@ -153,13 +153,13 @@ int send_receive_message(int socketfd) {
 
 /**
  *
- * @param socketfd
+ * @param socketfd the socket of the server
  * @return 0 if everything has worked corectly
  * @return -1 if could not write in socket
  * @return -2 if could not read from socket
  * @return -3 if the response code is not CODE_COMPUTE
  */
-int send_receive_calcul(int socketfd) {
+int send_receive_compute(int socketfd) {
 
     char *data = calloc(DATA_LENGTH, sizeof(char));
     json_data json;
@@ -169,8 +169,17 @@ int send_receive_calcul(int socketfd) {
     strcpy(json.code, CODE_COMPUTE);
 
 
-    printf("Send a compute: < + -  / * > <1> <2> <n> ");
-
+    printf("Send a compute: <operator> <nb_1> <nb_2> <nb_n>\n");
+    printf("Operators available:"
+           "\n\t+   : add all numbers"
+           "\n\t-   : substract all numbers"
+           "\n\t*   : multiply all numbers"
+           "\n\t/   : divide all numbers"
+           "\n\tavg : average of all numbers"
+           "\n\tsd  : standard deviation of all numbers"
+           "\n\tmin : min from all numbers"
+           "\n\tmax : max from all numbers\n"
+    );
     string s = malloc(16), s2 = malloc(MESSAGE_MAX_LENGH);
     scanf("%s %[^\n]", s, s2);
 

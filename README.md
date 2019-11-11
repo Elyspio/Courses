@@ -1,5 +1,7 @@
 
-# Objectifs
+## Tache 4 
+
+## Objectifs
 
 - Réaliser un environement client serveur pour :
     - envoie de message (avec réponse)
@@ -11,7 +13,7 @@
 
 - Les échanges se font au format json 
 
-# Fichiers
+## Fichiers
 
 README.md
 
@@ -43,9 +45,10 @@ src
 - server
     - server.c
     - server.h
+- test
+    - test.c
 
-
-# Bibliothèques
+## Bibliothèques
 
 - `string.h` pour la manipulation des chaines de caractères
 - `stdlib.h` pour la manipulation de mémoire
@@ -53,14 +56,10 @@ src
 - `sys/socket.h` pour les sockets entre le client et le serveur
 - `time.h` pour la récupération de l'heure
 
-# Référence 
+## Référence 
 
 / 
 
-# Difficulté
+## Difficulté
 
-Dur
-- Problème avec realloc et la gestion de la mémoire en général, 
-- Les couleurs récupérées par 'analyse' ne sont pas les bonnes, 
-- Les void* sont capricieux
-+ Projet très chronophage si l'on veut faire quelque chose de générique
+Facile
