@@ -38,7 +38,7 @@ int _handle_name(int socket_fd, json_data* json);
  * @param message
  * @return
  */
-int _handle_error(int socket_fd, char* message);
+int _handle_error(int socket_fd, string message);
 
 /**
  *
@@ -47,7 +47,7 @@ int _handle_error(int socket_fd, char* message);
  * @return 0 if everything has worked correctly
  * @return -1 if could not write data into the socket
  */
-int _response(int client_socket_fd, char* message);
+int _response(int client_socket_fd, string message);
 
 /**
  * Get the average of an array of doubles

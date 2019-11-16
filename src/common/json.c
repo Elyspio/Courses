@@ -339,7 +339,7 @@ int try_parse_number(char *str) {
 
 int try_parse_str(char *str) {
     size_t str_len = strlen(str);
-    stack stack = empty_stack();
+    stack_char stack = stack_create();
     char current, previous = '\0';
     char allowedAfterBackSlash[9] = {'"', '\'', '/', '\\', 'b', 'f', 'n', 'r', 't'};
 
@@ -379,7 +379,7 @@ int try_parse_str(char *str) {
 
 int try_parse_array(char *str) {
     size_t str_len = strlen(str);
-    stack stack = empty_stack();
+    stack_char stack = stack_create();
     char current;
     bool firstObject = true;
 
@@ -422,7 +422,7 @@ int try_parse_array(char *str) {
 
 int try_parse_object(char *str) {
     size_t str_len = strlen(str);
-    stack stack = empty_stack();
+    stack_char stack = stack_create();
     char current;
     bool firstObject = true;
     enum objectState currentState = STATE_NAME;

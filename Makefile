@@ -34,7 +34,6 @@ env:
 	@mkdir -p $(SRC_FOLDER)/$(SERVER) $(SRC_FOLDER)/$(CLIENT) $(SRC_FOLDER)/$(COMMON)
 	@mkdir -p $(BUILD_FOLDER)/$(SERVER) $(BUILD_FOLDER)/$(CLIENT) $(BUILD_FOLDER)/$(TEST)/=
 	@mkdir -p $(DIST_FOLDER)
-	@echo "Done"
 
 compile_common: env
 	@ mkdir -p $(BUILD_FOLDER)/$(COMMON)
@@ -54,7 +53,7 @@ client: compile_common
 	@ $(CC) -o $(DIST_FOLDER)/$(CLIENT_EXEC)  $(BUILD_FOLDER)/$(CLIENT)/*.o $(BUILD_FOLDER)/$(COMMON)/*.o
 	@ echo "Client is available at $(DIST_FOLDER)/$(CLIENT_EXEC)"
 
-test: compile_common
+test: compile_common env_test
 	@ $(CC) $(CC_FLAGS) -c  `find $(SRC_FOLDER)/$(TEST) -type f -name "*.c"`
 	@ mv *.o $(BUILD_FOLDER)/$(TEST)
 	@ $(CC) -o $(DIST_FOLDER)/$(TEST_EXEC)  $(BUILD_FOLDER)/$(TEST)/*.o $(BUILD_FOLDER)/$(COMMON)/*.o
@@ -68,9 +67,5 @@ env_test:
 	@ mkdir -p $(BUILD_FOLDER)/$(TEST)
 	@ mkdir -p $(DIST_FOLDER)/$(TEST)
 
-clean: 
-	@ rm -rdf $(DIST_FOLDER)
-	@ rm -rdf $(BUILD_FOLDER)
-
-watch:
+watch_test:
 	@ ./tmux/test.bash

@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 }
 
 
-void disp_menu(int socked_id) {
+void disp_menu(int socked_fd) {
     bool run = true;
     while (run) {
         printf("\nWhat do you want to do ?\n");
@@ -42,16 +42,16 @@ void disp_menu(int socked_id) {
                 run = false;
                 break;
             case 1:
-                send_receive_message(socked_id);
+                send_receive_message(socked_fd);
                 break;
             case 2:
-                send_receive_name(socked_id);
+                send_receive_name(socked_fd);
                 break;
             case 3:
-                send_receive_compute(socked_id);
+                send_receive_compute(socked_fd);
                 break;
             case 4:
-                send_receive_color(socked_id);
+                send_receive_color(socked_fd);
                 break;
         }
     }
@@ -59,11 +59,7 @@ void disp_menu(int socked_id) {
 }
 
 
-/**
- * @return File descriptor of the socket
- * @return -1 if could not connect to the server
- * @return -2 if could not create the socket
- */
+
 int connect_client() {
     int socketfd;
 
@@ -93,13 +89,7 @@ int connect_client() {
     return socketfd;
 }
 
-/**
- *
- * @param socketfd
- * @return 0 if everything has worked corectly
- * @return -1 if could not write in socket
- * @return -2 if could not read from socket
- */
+
 int send_receive_message(int socketfd) {
 
     char *data = calloc(DATA_LENGTH, sizeof(char));
@@ -151,14 +141,7 @@ int send_receive_message(int socketfd) {
     return 0;
 }
 
-/**
- *
- * @param socketfd the socket of the server
- * @return 0 if everything has worked corectly
- * @return -1 if could not write in socket
- * @return -2 if could not read from socket
- * @return -3 if the response code is not CODE_COMPUTE
- */
+
 int send_receive_compute(int socketfd) {
 
     char *data = calloc(DATA_LENGTH, sizeof(char));
@@ -167,7 +150,6 @@ int send_receive_compute(int socketfd) {
     json_create_ptr(&json, 3);
 
     strcpy(json.code, CODE_COMPUTE);
-
 
     printf("Send a compute: <operator> <nb_1> <nb_2> <nb_n>\n");
     printf("Operators available:"
@@ -278,12 +260,6 @@ void analyse(char *pathname, char **colors, int nb_colors) {
     }
 }
 
-/**
- * Analyse an image and send the result to the server
- * @return 0 if everything has worked corectly
- * @return -1 if could not write in socket
- * @return -2 if could not read from socket
- */
 int send_receive_color(int socketfd) {
 
     char *path = calloc(256, sizeof(char));

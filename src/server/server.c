@@ -345,7 +345,6 @@ void plot(int socket_fd, struct json_data *json) {
             _handle_error(socket_fd, error);
         }
     } else {
-        printf("Plot");
         fprintf(p, "set xrange [-15:15]\n");
         fprintf(p, "set yrange [-15:15]\n");
         fprintf(p, "set style fill transparent solid 0.9 noborder\n");
@@ -357,7 +356,6 @@ void plot(int socket_fd, struct json_data *json) {
                     (string) json->values[i].data + 1);
         }
         fprintf(p, "e\n");
-        printf("Plot: FIN\n");
 
     }
     close(fd);
