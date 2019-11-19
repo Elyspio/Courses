@@ -50,4 +50,4 @@ add_executable(test
         src/common/types.c
         src/common/types.h
         src/test/test.c
-        )
+        src/test/test.h)

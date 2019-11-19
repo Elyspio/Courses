@@ -9,39 +9,35 @@
 #include <string.h>
 #include "../common/json.h"
 #include "../common/tools.h"
+#include "test.h"
+
+
+file new_file();
 
 int main(int argc, char **args) {
-    string s = malloc(1024), s2 = malloc(1024);
-    scanf("%s %[^\n]", s, s2);
-    printf("%s,\n%s\n", s, s2);
-    char delemiter[1] = " ";
+	file file = new_file();
+	maillon  m;
+	m.value = malloc(sizeof(int*));
+	*(int*) m.value = 1;
+	file.head = &m;
 
-    json_data json = json_create(1);
+}
 
-    char *ptr = strtok(s2, delemiter);
-    int i = 1;
-    while (ptr != NULL) {
-        printf("%d | %s\n", i, ptr);
-        if (try_parse_number(ptr) > 0) {
-            json.data_length = i ;
-            json.values[i - 1] = value_create();
-            if (is_double(ptr)) {
-                *(double *) json.values[i - 1].data = strtod(ptr, NULL);
-                strcpy(json.values[i - 1].type, TYPE_DOUBLE);
-            } else {
-                printf("%s is a int\n",  ptr);
-                *(int *) json.values[i - 1].data = (int) strtod(ptr, NULL);
-                strcpy(json.values[i - 1].type, TYPE_INT);
-            }
-        }
-        else {
-            printf("%s is not a number", ptr);
-        }
-        i++;
-        json.values = realloc(json.values, i * sizeof(value));
-        ptr = strtok(NULL, delemiter);
 
-    }
-    strcpy(json.code, CODE_COMPUTE);
-    json_print(&json);
+file new_file() {
+	file f;
+	f.head = NULL;
+	return f;
+}
+
+void insert(file* file, void* elem) {
+
+}
+
+void* delete(file* file, size_t ind) {
+	return NULL;
+}
+
+void print_file(file* file) {
+
 }

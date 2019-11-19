@@ -66,6 +66,7 @@ string format_time() {
 void escape_str(char* dest, char* src) {
 	*dest = 0;
 	char* start = src;
+
 	while (*src) {
 		switch (*src) {
 			case '\"':
