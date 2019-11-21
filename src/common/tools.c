@@ -8,6 +8,8 @@
 #include "stdlib.h"
 #include "types.h"
 #include "const.h"
+#include "tools.h"
+#include <unistd.h>
 
 void replace_all(char* src, char target, char by) {
 	for (int i = 0; src[i] != '\0'; i++) {
@@ -118,4 +120,44 @@ bool is_double(string str) {
 
 
 	return got_number_after_point;
+}
+
+/**
+ * Creates a new process that will execute a program and pipes its stdin and stdout to the caller
+ * @param program_path the path of the program
+ * @return a flux object with stdin and stdout of the new process
+ */
+flux popen_in_out(char* program_path) {
+	flux flux;
+	int fdstdin[2];
+	int fdstdout[2];
+	// pipe = lire dans [0] et écrire dans [1]
+	pipe(fdstdin);
+	pipe(fdstdout);
+	int pid = fork();
+	if(pid == 0) {
+
+		close(fdstdin[1]);
+		close(fdstdout[0]);
+
+		dup2(fdstdin[0], STDIN_FILENO);
+		dup2(fdstdout[1], STDOUT_FILENO);
+
+		close(fdstdin[0]);
+		close(fdstdout[1]);
+
+		execl( program_path, program_path, NULL);
+		printf("NO PRINTED PLEASE");
+		exit(0);
+	}
+
+
+	perror("1""2""read");
+	close(fdstdin[0]);
+	close(fdstdout[1]);
+
+	flux.stdin = fdstdin[1];
+	flux.stdout = fdstdout[0];
+	flux.pid = pid;
+	return flux;
 }

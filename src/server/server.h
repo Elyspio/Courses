@@ -67,6 +67,16 @@ double _get_avg(double* values, int nb_values);
  */
 int listen_client();
 
+
+
+/**
+ * Create the connection with the client
+ * @param socketfd
+ * @returns client_fd
+ * @fork
+ */
+int wait_client(int socketfd);
+
 /**
  * Middleware to handle all requests
  * @param socket_fd

@@ -65,7 +65,7 @@ task: client server test
 env_test:
 	@ mkdir -p $(SRC_FOLDER)/$(TEST)
 	@ mkdir -p $(BUILD_FOLDER)/$(TEST)
-	@ mkdir -p $(DIST_FOLDER)/$(TEST)
+	@ mkdir -p $(DIST_FOLDER)/
 
 watch_test:
 	@ ./tmux/test.bash

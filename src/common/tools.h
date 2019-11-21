@@ -46,4 +46,15 @@ int unescape_str(char* dest, char* src);
 
 bool is_double(string str);
 
+
+typedef struct flux {
+	int  stdin  ;
+	int stdout;
+	int pid;
+} flux;
+
+
+
+flux popen_in_out(char* program_path);
+
 #endif //PROJECT_TOOLS_H

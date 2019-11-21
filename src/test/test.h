@@ -22,5 +22,12 @@ void* delete(file* file, size_t ind);
 
 void print_file(file* file);
 
+void test_all_codes(char* client_path, char* server_path);
+
+
+int test_message(flux* client, flux* server);
+int test_name(flux* client, flux* server);
+int test_color(flux* client, flux* server);
+int test_compute(flux* client, flux* server);
 
 #endif //NEW_COURSES_TEST_H

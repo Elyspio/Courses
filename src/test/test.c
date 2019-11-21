@@ -7,37 +7,129 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <zconf.h>
+#include <fcntl.h>
+#include <bits/fcntl-linux.h>
 #include "../common/json.h"
 #include "../common/tools.h"
 #include "test.h"
 
 
-file new_file();
+/**
+ *
+ * @param argc 3
+ * @param args  [test.app, path_to_client, path_to_server]
+ * @return
+ */
+int main(int argc, char** args) {
+	if (argc == 3) {
+		test_all_codes(args[1], args[2]);
+	}
+	else {
+		test_all_codes("/media/windows/Progs/new_courses/dist/client.app", "/media/windows/Progs/new_courses/dist/server.app");
+	}
+}
 
-int main(int argc, char **args) {
-	file file = new_file();
-	maillon  m;
-	m.value = malloc(sizeof(int*));
-	*(int*) m.value = 1;
-	file.head = &m;
+
+void test_all_codes(char* client_path, char* server_path) {
+
+	flux server = popen_in_out(server_path);
+
+	usleep(1000000);
+
+	flux client = popen_in_out(client_path);
+
+	bool status[4];
+
+	status[0] = test_message(&client, &server);
+//	status[1] = test_name(&client, &server);
+//	status[2] = test_compute(&client, &server);
+//	status[3] = test_color(&client, &server);
+
 
 }
 
 
-file new_file() {
-	file f;
-	f.head = NULL;
-	return f;
+int test_message(flux* client, flux* server) {
+
+	char* str = malloc(2);
+	string response = calloc(1024, sizeof(char));
+	read(server->stdout, response, 1024);
+
+	memset(response, 0, 1024);
+
+	strcpy(str, "1");
+	int writed = write(client->stdin, str, strlen(str));
+	if(writed <= 0) {
+		perror("Error write");
+	}
+	usleep(10000);
+
+
+	string client_message = "je s'appelle client";
+	string server_message = "je s'appelle server";
+
+
+
+	writed = write(client->stdin, client_message, strlen(client_message));
+	if(writed <= 0) {
+		perror("Error wri2te");
+	}
+
+	usleep(1000000);
+	read(server->stdout, response, 1024);
+
+	if (strcmp(response, client_message) != 0) {
+		fprintf(stderr, "Message received from client is not \"%s\" : \"%s\"", client_message, response);
+		return false;
+	}
+
+	dprintf(server->stdin, "%s", server_message);
+	usleep(1000000);
+	memset(response, 0, 1024);
+	read(client->stdout, response, 1024);
+
+	if (strcmp(response, server_message) != 0) {
+		fprintf(stderr, "Message received from server is not \"%s\" : \"%s\"", server_message, response);
+		return false;
+	}
+
+	return true;
 }
 
-void insert(file* file, void* elem) {
 
+int test_name(flux* client, flux* server) {
+
+	string hostname = calloc(1024, sizeof(char));
+	gethostname(hostname, 1024);
+	string response = calloc(1024, sizeof(char));
+
+	dprintf(client->stdout, "%s", hostname);
+	usleep(100000);
+	read(server->stdin, response, 1024);
+
+	if (strcmp(response, hostname) != 0) {
+		fprintf(stderr, "Name received from client is not %s : %s", hostname, response);
+		return false;
+	}
+
+	dprintf(server->stdout, "%s", hostname);
+	usleep(100000);
+	memset(response, 0, 1024);
+	read(client->stdin, response, 1024);
+
+	if (strcmp(response, hostname) != 0) {
+		fprintf(stderr, "Name received from server is not %s : %s", hostname, response);
+		return false;
+	}
+
+	return true;
 }
 
-void* delete(file* file, size_t ind) {
-	return NULL;
+int test_compute(flux* client, flux* server) {
+	return true;
 }
 
-void print_file(file* file) {
-
+int test_color(flux* client, flux* server) {
+	return true;
 }
