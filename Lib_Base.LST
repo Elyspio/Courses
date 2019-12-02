@@ -1,0 +1,130 @@
+C51 COMPILER V9.59.0.0   LIB_BASE                                                          12/02/2019 11:42:43 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE LIB_BASE
+OBJECT MODULE PLACED IN Lib_Base.OBJ
+COMPILER INVOKED BY: D:\Softwares\uVision\C51\BIN\C51.EXE Lib_Base.c OPTIMIZE(8,SPEED) REGFILE(.\TP3_IRC.ORC) BROWSE DEB
+                    -UG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          //******************************************************************************
+   2          //TP_8051_Lib.asm
+   3          //   Ce fichier contient des définitions et des routines utiles au TP
+   4          //  Microcontrôleur
+   5          //  Aucune modification n'est nécessaire.
+   6          //  Il suffit d'ajouter ce fichier à votre Projet
+   7          //  TARGET MCU  :  C8051F020 
+   8          
+   9          //******************************************************************************
+  10          
+  11          #include "C8051F020.h"
+  12          
+  13          // Peripheral specific initialization functions,
+  14          // Called from the Init_Device() function
+  15          
+  16          //-----------------------------------------------------------------------------
+  17          // Dévalidation du watchdog
+  18          //-----------------------------------------------------------------------------
+  19          void Reset_Sources_Init()
+  20          {
+  21   1          WDTCN     = 0xDE;
+  22   1          WDTCN     = 0xAD;
+  23   1      }
+  24          
+  25          //-----------------------------------------------------------------------------
+  26          // Configuration des Ports d'entrée-sorties
+  27          //-----------------------------------------------------------------------------
+  28          
+  29          void Port_IO_Init()
+  30          {
+  31   1          // P0.0  -  TX0 (UART0), Push-Pull,  Digital
+  32   1          // P0.1  -  RX0 (UART0), Open-Drain, Digital
+  33   1          // P0.2  -  CEX0 (PCA),  Push-Pull,  Digital
+  34   1          // P0.3  -  CEX1 (PCA),  Open-Drain, Digital
+  35   1          // P0.4  -  CEX2 (PCA),  Open-Drain, Digital
+  36   1          // P0.5  -  CEX3 (PCA),  Open-Drain, Digital
+  37   1          // P0.6  -  ECI,         Open-Drain, Digital
+  38   1          // P0.7  -  T0 (Timer0), Push-Pull,  Digital
+  39   1      
+  40   1          // P1.0  -  INT0 (Tmr0),         Open-Drain, Digital
+  41   1          // P1.1  -  T1 (Timer1),         Open-Drain, Digital
+  42   1          // P1.2  -  INT1 (Tmr1),         Open-Drain, Digital
+  43   1          // P1.3  -  T2 (Timer2),         Open-Drain, Digital
+  44   1          // P1.4  -  T2EX (Tmr2),         Open-Drain, Digital
+  45   1          // P1.5  -  SYSCLK,              Push-Pull,  Digital   Visu Horloge Système
+  46   1          // P1.6  -  General Purpose I/O, Open-Drain, Digital   Port LED
+  47   1          // P1.7  -  General Purpose I/O, Open-Drain, Digital
+  48   1      
+  49   1          // P2.0  -  General Purpose I/O, Open-Drain, Digital
+  50   1          // P2.1  -  General Purpose I/O, Open-Drain, Digital
+  51   1          // P2.2  -  General Purpose I/O, Open-Drain, Digital
+  52   1          // P2.3  -  General Purpose I/O, Open-Drain, Digital
+  53   1          // P2.4  -  General Purpose I/O, Open-Drain, Digital
+  54   1          // P2.5  -  General Purpose I/O, Open-Drain, Digital
+C51 COMPILER V9.59.0.0   LIB_BASE                                                          12/02/2019 11:42:43 PAGE 2   
+
+  55   1          // P2.6  -  General Purpose I/O, Open-Drain, Digital
+  56   1          // P2.7  -  General Purpose I/O, Open-Drain, Digital
+  57   1      
+  58   1          // P3.0  -  General Purpose I/O, Open-Drain, Digital
+  59   1          // P3.1  -  General Purpose I/O, Open-Drain, Digital
+  60   1          // P3.2  -  General Purpose I/O, Open-Drain, Digital
+  61   1          // P3.3  -  General Purpose I/O, Open-Drain, Digital
+  62   1          // P3.4  -  General Purpose I/O, Open-Drain, Digital
+  63   1          // P3.5  -  General Purpose I/O, Open-Drain, Digital
+  64   1          // P3.6  -  General Purpose I/O, Open-Drain, Digital
+  65   1          // P3.7  -  General Purpose I/O, Open-Drain, Digital
+  66   1      
+  67   1          P0MDOUT   = 0x85;
+  68   1          P1MDOUT   = 0x00;
+  69   1          P2MDOUT   = 0x00;
+  70   1          P3MDOUT   = 0x00;
+  71   1          P74OUT    = 0x00;
+  72   1          P1MDIN    = 0xFF;
+  73   1      
+  74   1          XBR0      = 0x64;
+  75   1          XBR1      = 0xFE;
+  76   1          XBR2      = 0x40;
+  77   1      
+  78   1          P2        = 0;
+  79   1          P1        = 0;
+  80   1          P3        = 0;
+  81   1      }
+  82          
+  83          //-----------------------------------------------------------------------------
+  84          // Configuration de l'oscillateur - SYSCLK = Clock externe 22118400Hz 
+  85          //-----------------------------------------------------------------------------
+  86          void Oscillator_Init()
+  87          {
+  88   1          int i = 0;
+  89   1          OSCXCN    = 0x67;
+  90   1          for (i = 0; i < 3000; i++);  // Wait 1ms for initialization
+  91   1          while ((OSCXCN & 0x80) == 0);
+  92   1          OSCICN    = 0x0C;
+  93   1      }
+  94          
+  95          
+  96          //-----------------------------------------------------------------------------
+  97          // Initialisation globale du Microcontrôleur - 
+  98          //-----------------------------------------------------------------------------
+  99          void Init_Device(void)
+ 100          {
+ 101   1          Reset_Sources_Init();
+ 102   1          Port_IO_Init();
+ 103   1          Oscillator_Init();
+ 104   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     74    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

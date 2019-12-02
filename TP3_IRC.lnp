@@ -1,0 +1,6 @@
+"STARTUP.obj",
+"Lib_Base.obj",
+"Asm_8051_Lib.obj",
+"Base_TP3.obj" 
+TO "TP3_IRC" REGFILE (.\TP3_IRC.ORC) 
+RAMSIZE(256) 

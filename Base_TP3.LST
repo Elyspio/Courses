@@ -1,0 +1,302 @@
+C51 COMPILER V9.59.0.0   BASE_TP3                                                          12/02/2019 11:42:43 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE BASE_TP3
+OBJECT MODULE PLACED IN Base_TP3.OBJ
+COMPILER INVOKED BY: D:\Softwares\uVision\C51\BIN\C51.EXE Base_TP3.C OPTIMIZE(8,SPEED) REGFILE(.\TP3_IRC.ORC) BROWSE DEB
+                    -UG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          //------------------------------------------------------------------------------------
+   2          // Base_TP3_IRC
+   3          //------------------------------------------------------------------------------------
+   4          //
+   5          // AUTH: FJ
+   6          // DATE: 03-03-2009
+   7          // Target: C8051F02x
+   8          //
+   9          // Tool chain: KEIL Eval 'c'
+  10          //
+  11          //------------------------------------------------------------------------------------
+  12          // Includes
+  13          //------------------------------------------------------------------------------------
+  14          #include <c8051f020.h> // SFR declarations
+  15          
+  16          //------------------------------------------------------------------------------------
+  17          // 16-bit SFR Definitions for 'F02x
+  18          //------------------------------------------------------------------------------------
+  19          sfr16 TMR3RL = 0x92; // Timer3 reload value
+  20          sfr16 TMR3 = 0x94;   // Timer3 counter
+  21          sfr16 ADC0 = 0xbe;   // ADC0 data
+  22          sfr16 ADC0GT = 0xc4; // ADC0 greater than window
+  23          sfr16 ADC0LT = 0xc6; // ADC0 less than window
+  24          sfr16 RCAP2 = 0xca;  // Timer2 capture/reload
+  25          sfr16 T2 = 0xcc;   // Timer2
+  26          sfr16 RCAP4 = 0xe4;  // Timer4 capture/reload
+  27          sfr16 T4 = 0xf4;   // Timer4
+  28          sfr16 DAC0 = 0xd2;   // DAC0 data
+  29          sfr16 DAC1 = 0xd5;   // DAC1 data
+  30          
+  31          //------------------------------------------------------------------------------------
+  32          // Global CONSTANTS
+  33          //------------------------------------------------------------------------------------
+  34          
+  35          #define SYSCLK 22118400 //approximate SYSCLK frequency in Hz
+  36          #define LED_On 1
+  37          #define LED_Off 0
+  38          
+  39          extern code char Sin_table[];
+  40          
+  41          // El�ments pr�sents sur la carte 8051F020
+  42          sbit LED = P1 ^ 6; // LED verte: '1' = ON; '0' = OFF
+  43          sbit BP = P3 ^ 7;  // Bouton Poussoir '1' relach�, '0' press�
+  44          
+  45          // El�ments de l'application Pilotage d'un syst�me de tri
+  46          sbit Tst4 = P3 ^ 4;
+  47          sbit Tst5 = P3 ^ 5;
+  48          sbit Tst6 = P3 ^ 6;
+  49          
+  50          //------------------------------------------------------------------------------------
+  51          // Function PROTOTYPES
+  52          //------------------------------------------------------------------------------------
+  53          void Init_Device(void);     // Fonction cod�e dans LIB_Base.c
+  54          void fct_tempo(unsigned int); // Fonction assembleur cod�e dans Asm_8051_Lib.asm
+C51 COMPILER V9.59.0.0   BASE_TP3                                                          12/02/2019 11:42:43 PAGE 2   
+
+  55          void wait(unsigned int milli);
+  56          void exBtnPoussoir();
+  57          void exTimer();
+  58          void exTimerInterrupt();
+  59          void confT2();
+  60          void exo5();
+  61          
+  62          int refresh_rate = 1000;
+  63          int timer_count = 0;
+  64          
+  65          //------------------------------------------------------------------------------------
+  66          // MAIN Routine
+  67          //------------------------------------------------------------------------------------
+  68          void main(void)
+  69          {
+  70   1        Init_Device();
+  71   1      
+  72   1        putchar('c');
+*** WARNING C206 IN LINE 72 OF Base_TP3.C: 'putchar': missing function-prototype
+*** ERROR C267 IN LINE 72 OF Base_TP3.C: 'putchar': requires ANSI-style prototype
+  73   1        
+  74   1        exo5();
+  75   1      }
+  76          
+  77          void T2wait20ms()
+  78          {
+  79   1        confT2();
+  80   1        while (TF2 == 0)
+  81   1        {
+  82   2        }
+  83   1        return;
+  84   1      }
+  85          
+  86          void exo5()
+  87          {
+  88   1        
+  89   1        // Config LED 
+  90   1        TR2 = 1;
+  91   1        P1MDOUT |= 1 << 6;
+  92   1      
+  93   1        BP = 1;
+  94   1        P3MDOUT &= ~(1 << 7);
+  95   1      
+  96   1        Tst4 = 0;
+  97   1        LED = LED_Off;
+  98   1        
+  99   1        // Config Btn
+ 100   1        //P3IF |= (1 << 7);
+ 101   1        P3IF &= ~(1 << 7);
+ 102   1        P3IF &= ~(1 << 3);
+ 103   1      
+ 104   1        EIE2 |= (1 << 5);
+ 105   1        EIP2 |= (1 << 5);
+ 106   1      
+ 107   1        IT0 = 1;
+ 108   1      
+ 109   1      
+ 110   1        
+ 111   1        confT2();
+ 112   1        
+ 113   1        while (1)
+ 114   1        {}
+C51 COMPILER V9.59.0.0   BASE_TP3                                                          12/02/2019 11:42:43 PAGE 3   
+
+ 115   1      }
+ 116          
+ 117          void confT2()
+ 118          {
+ 119   1        TF2 = 0;
+ 120   1        EXF2 = 0;
+ 121   1        RCLK0 = 0;
+ 122   1        TCLK0 = 0;
+ 123   1        EXEN2 = 0;
+ 124   1        EXEN2 = 0;
+ 125   1        TR2 = 0;
+ 126   1        CT2 = 0;
+ 127   1        CPRL2 = 0;
+ 128   1        CKCON &= ~0x20;
+ 129   1        RCAP2H = 0x6f;
+ 130   1        RCAP2L = 0xda;
+ 131   1        TH2 = 0x6f;
+ 132   1        TL2 = 0xda;
+ 133   1        TR2 = 1;
+ 134   1        EA = 1;
+ 135   1        ET2 = 1;
+ 136   1      }
+ 137          
+ 138          void interruptBtn() interrupt 19
+ 139          {
+ 140   1        Tst6 = 1;
+ 141   1        
+ 142   1        refresh_rate = (refresh_rate == 100) ? 1000 : 100;
+ 143   1        P3IF &= ~(1 << 7);
+ 144   1      
+ 145   1        Tst6 = 0;
+ 146   1      }
+ 147          
+ 148          /**
+ 149           * EXO 5 
+ 150           * clignotement tout les refresh_rate / 20ms 
+ 151           */
+ 152          void interuptT2() interrupt 5
+ 153          {
+ 154   1        Tst5 = 1;
+ 155   1        timer_count++;
+ 156   1        TF2 = 0;
+ 157   1        if (timer_count >= (refresh_rate / 20))
+ 158   1        {
+ 159   2      
+ 160   2          LED = ~LED;
+ 161   2          Tst4 = ~Tst4;
+ 162   2          timer_count = 0;
+ 163   2        }
+ 164   1          Tst5 = 0;
+ 165   1      }
+ 166          
+ 167          // /**
+ 168          // EXO 4
+ 169          //  * clignotement tout les 5 * 20ms
+ 170          //  */
+ 171          // void interuptT2() interrupt 5
+ 172          // {
+ 173          //  timer_count++;
+ 174          //  TF2 = 0;
+ 175          //  if (timer_count == 5)
+ 176          //  {
+C51 COMPILER V9.59.0.0   BASE_TP3                                                          12/02/2019 11:42:43 PAGE 4   
+
+ 177          //    if (BP != 0)
+ 178          //    {
+ 179          //      LED = ~LED;
+ 180          //      Tst4 = ~Tst4;
+ 181          //    }
+ 182          //    else
+ 183          //    {
+ 184          //      LED = LED_Off;
+ 185          //    }
+ 186          //    timer_count = 0;
+ 187          //  }
+ 188          // }
+ 189          
+ 190          void exTimerInterrupt()
+ 191          {
+ 192   1      
+ 193   1        TR2 = 1;
+ 194   1        P1MDOUT |= 1 << 6;
+ 195   1      
+ 196   1        BP = 1;
+ 197   1        P3MDOUT &= ~(1 << 7);
+ 198   1      
+ 199   1        Tst4 = 0;
+ 200   1        LED = LED_Off;
+ 201   1      
+ 202   1        confT2();
+ 203   1      
+ 204   1        while (1)
+ 205   1        {
+ 206   2        }
+ 207   1      }
+ 208          
+ 209          void exTimer()
+ 210          {
+ 211   1      
+ 212   1        TR2 = 1;
+ 213   1        P1MDOUT |= 1 << 6;
+ 214   1      
+ 215   1        BP = 1;
+ 216   1        P3MDOUT &= ~(1 << 7);
+ 217   1      
+ 218   1        Tst4 = 0;
+ 219   1        LED = LED_Off;
+ 220   1      
+ 221   1        while (1)
+ 222   1        {
+ 223   2          int i = 0;
+ 224   2          for (; i < 5; i++)
+ 225   2          {
+ 226   3            T2wait20ms();
+ 227   3          }
+ 228   2      
+ 229   2          if (BP != 0)
+ 230   2          {
+ 231   3            LED = ~LED;
+ 232   3            Tst4 = ~Tst4;
+ 233   3          }
+ 234   2          else
+ 235   2          {
+ 236   3            LED = LED_Off;
+ 237   3          }
+ 238   2        }
+C51 COMPILER V9.59.0.0   BASE_TP3                                                          12/02/2019 11:42:43 PAGE 5   
+
+ 239   1      }
+ 240          
+ 241          void exBtnPoussoir()
+ 242          {
+ 243   1      
+ 244   1        P1MDOUT |= 1 << 6;
+ 245   1      
+ 246   1        BP = 1;
+ 247   1        P3MDOUT &= ~(1 << 7);
+ 248   1      
+ 249   1        Tst4 = 0;
+ 250   1        LED = LED_Off;
+ 251   1      
+ 252   1        while (1)
+ 253   1        {
+ 254   2      
+ 255   2          if (BP != 0)
+ 256   2          {
+ 257   3      
+ 258   3            LED = ~LED;
+ 259   3            Tst4 = ~Tst4;
+ 260   3          }
+ 261   2          else
+ 262   2          {
+ 263   3            LED = LED_Off;
+ 264   3          }
+ 265   2      
+ 266   2          wait(100);
+ 267   2        }
+ 268   1      }
+ 269          
+ 270          /**
+ 271          * Wait a multiple of 50 ms 
+ 272          */
+ 273          void wait(unsigned int milli)
+ 274          {
+ 275   1        int i = 0;
+ 276   1        for (; i < milli; i += 50)
+ 277   1        {
+ 278   2          fct_tempo(50000);
+ 279   2        }
+ 280   1      }
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  1 ERROR(S)
