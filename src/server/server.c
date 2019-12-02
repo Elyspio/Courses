@@ -31,13 +31,21 @@ int _response(int client_socket_fd, char *message) {
 int main() {
 
 
-    string formatTime = format_time();
-    printf("Server started at %s\n", formatTime);
+    string start_time = format_time();
+    printf("Server started at %s\n", start_time);
 	fflush(stdout);
-    free(formatTime);
+	free(start_time);
 
+    // the process fork here
     int client_socket_fd = listen_client();
-    if (client_socket_fd > 0) {
+
+	string client_time = format_time();
+	printf("New client connection at %s\n", client_time);
+	fflush(stdout);
+	free(client_time);
+
+
+	if (client_socket_fd > 0) {
 
         while (true) {
             handle_request(client_socket_fd);
@@ -182,7 +190,10 @@ int _handle_message(int socket_fd, json_data *json) {
         printf("Please enter the response: ");
 	    fflush(stdout);
         char *response_message = calloc(DATA_LENGTH - prompt_length, sizeof(char));
-        scanf("%s", response_message); //		response_message[strlen(response_message) - 1] = '\0';
+	    printf("Your message (max %d characters): ", MESSAGE_MAX_LENGH);
+	    fflush(stdout);
+	    fgets(response_message, MESSAGE_MAX_LENGH, stdin);
+		response_message[strlen(response_message) - 1 ] = '\0';
 
         json_free(json);
         json_data response_json = json_create(1);
@@ -401,6 +412,7 @@ int _handle_color(int socket_fd, json_data *json) {
 int _handle_name(int socket_fd, json_data *json) {
     if (json->data_length == 1 && strcmp(json->values[0].type, TYPE_STR) == 0) {
         printf("Client's name: %s\n", (string) json->values[0].data);
+	    fflush(stdout);
         return _response(socket_fd, serialize(json));
     }
     return _handle_error(socket_fd, "to handle name, we need one argument: name");

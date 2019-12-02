@@ -136,7 +136,7 @@ flux popen_in_out(char* program_path) {
 	pipe(fdstdout);
 	int pid = fork();
 	if(pid == 0) {
-
+		string args[] = {program_path, NULL};
 		close(fdstdin[1]);
 		close(fdstdout[0]);
 
@@ -146,18 +146,20 @@ flux popen_in_out(char* program_path) {
 		close(fdstdin[0]);
 		close(fdstdout[1]);
 
-		execl( program_path, program_path, NULL);
+		execvp( args[0], args);
 		printf("NO PRINTED PLEASE");
 		exit(0);
 	}
 
 
-	perror("1""2""read");
 	close(fdstdin[0]);
 	close(fdstdout[1]);
 
 	flux.stdin = fdstdin[1];
 	flux.stdout = fdstdout[0];
 	flux.pid = pid;
+
+
+
 	return flux;
 }

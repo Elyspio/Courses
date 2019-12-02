@@ -24,9 +24,9 @@
 int main(int argc, char** args) {
 	if (argc == 3) {
 		test_all_codes(args[1], args[2]);
-	}
-	else {
-		test_all_codes("/media/windows/Progs/new_courses/dist/client.app", "/media/windows/Progs/new_courses/dist/server.app");
+	} else {
+		test_all_codes("/media/windows/Progs/new_courses/dist/client.app",
+		               "/media/windows/Progs/new_courses/dist/server.app");
 	}
 }
 
@@ -52,34 +52,35 @@ void test_all_codes(char* client_path, char* server_path) {
 
 int test_message(flux* client, flux* server) {
 
-	char* str = malloc(2);
+	string str = malloc(2);
+	sprintf(str, "%d", MENU_CHOICE_MESSAGE);
 	string response = calloc(1024, sizeof(char));
-	read(server->stdout, response, 1024);
 
 	memset(response, 0, 1024);
 
-	strcpy(str, "1");
 	int writed = write(client->stdin, str, strlen(str));
-	if(writed <= 0) {
+	fsync(client->stdin);
+	if (writed <= 0) {
 		perror("Error write");
 	}
 	usleep(10000);
 
 
-	string client_message = "je s'appelle client";
-	string server_message = "je s'appelle server";
+	string client_message = "aaa kk ";
+	string server_message = "bbb ll";
 
 
 
-	writed = write(client->stdin, client_message, strlen(client_message));
-	if(writed <= 0) {
+	writed = write(client->stdin,  client_message, strlen(client_message));
+	if (writed <= 0) {
 		perror("Error wri2te");
 	}
 
 	usleep(1000000);
+
 	read(server->stdout, response, 1024);
 
-	if (strcmp(response, client_message) != 0) {
+	if (strstr(response, client_message) == NULL) {
 		fprintf(stderr, "Message received from client is not \"%s\" : \"%s\"", client_message, response);
 		return false;
 	}
@@ -89,7 +90,7 @@ int test_message(flux* client, flux* server) {
 	memset(response, 0, 1024);
 	read(client->stdout, response, 1024);
 
-	if (strcmp(response, server_message) != 0) {
+	if (strstr(response, server_message) == NULL) {
 		fprintf(stderr, "Message received from server is not \"%s\" : \"%s\"", server_message, response);
 		return false;
 	}

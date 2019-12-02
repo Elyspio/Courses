@@ -13,6 +13,14 @@
 #define CODE_ERROR "error"
 #define MAX_CODE_LENGTH 10
 
+
+#define MENU_CHOICE_EXIT  1
+#define MENU_CHOICE_MESSAGE  2
+#define MENU_CHOICE_COMPUTE  4
+#define MENU_CHOICE_NAME  3
+#define MENU_CHOICE_COLOR  5
+
+
 // Compute operators
 #define COMPUTE_OPERATOR_ADD '+'
 #define COMPUTE_OPERATOR_SUB '-'
